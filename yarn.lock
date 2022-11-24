@@ -14442,9 +14442,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"vue-antd-admin@workspace:.":
+"vmi@workspace:.":
   version: 0.0.0-use.local
-  resolution: "vue-antd-admin@workspace:."
+  resolution: "vmi@workspace:."
   dependencies:
     "@ant-design/colors": ^4.0.1
     "@antv/data-set": ^0.11.4
