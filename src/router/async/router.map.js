@@ -14,22 +14,139 @@ const routerMap = {
   },
   root: {
     path: '/',
-    name: '首页',
+    name: '启动页',
     redirect: '/login',
     component: view.tabs
   },
-  dashboard: {
-    name: 'Dashboard',
+  home: {
+    name: '首页',
     component: view.blank
   },
   workplace: {
     name: '工作台',
-    component: () => import('@/pages/dashboard/workplace')
+    component: () => import('@/pages/home/workplace')
   },
   analysis: {
-    name: '分析页',
-    component: () => import('@/pages/dashboard/analysis')
+    name: '业绩分析',
+    component: () => import('@/pages/home/analysis')
   },
+  order: {
+    name: '订单管理',
+    icon: 'table',
+    component: view.page
+  },
+  CreateOrder: {
+    path: 'CreateOrder',
+    name: '创建订单',
+    component: () => import('@/pages/order/create/CreateOrder')
+  },
+  OrderList: {
+    path: 'OrderList',
+    name: '订单查询',
+    component: () => import('@/pages/order/OrderList')
+  },
+  OrderSummary: {
+    path: 'OrderSummary',
+    name: '订单分析',
+    component: () => import('@/pages/order/OrderSummary')
+  },
+  product: {
+    name: '产品',
+    icon: 'table',
+    component: view.page
+  },
+  CreateProduct: {
+    path: 'CreateProduct',
+    name: '创建产品',
+    component: () => import('@/pages/product/create/CreateProduct')
+  },
+  ProductList: {
+    path: 'ProductList',
+    name: '产品查询',
+    component: () => import('@/pages/product/ProductList')
+  },
+  inventory: {
+    name: '库存',
+    icon: 'table',
+    component: view.page
+  },
+  InventoryIn: {
+    path: 'InventoryIn',
+    name: '入库',
+    component: () => import('@/pages/inventory/in/InventoryIn')
+  },
+  InventoryOut: {
+    path: 'InventoryOut',
+    name: '出库',
+    component: () => import('@/pages/inventory/out/InventoryOut')
+  },
+  InventoryList: {
+    path: 'InventoryList',
+    name: '库存查询',
+    component: () => import('@/pages/inventory/InventoryList')
+  },
+  account: {
+    name: '帐号',
+    icon: 'table',
+    component: view.page
+  },
+  AccountList: {
+    path: 'AccountList',
+    name: '帐号列表',
+    component: () => import('@/pages/account/AccountList')
+  },
+  RoleList: {
+    path: 'RoleList',
+    name: '角色列表',
+    component: () => import('@/pages/account/RoleList')
+  },
+  PermissionList: {
+    path: 'PermissionList',
+    name: '权限列表',
+    component: () => import('@/pages/account/PermissionList')
+  },
+  Role2Permission: {
+    path: 'Role2Permission',
+    name: '角色权限分配',
+    component: () => import('@/pages/account/Role2Permission')
+  },
+  Account2Role: {
+    path: 'Account2Role',
+    name: '帐号角色分配',
+    component: () => import('@/pages/account/Account2Role')
+  },
+  system: {
+    name: '系统',
+    icon: 'table',
+    component: view.page
+  },
+  DictList: {
+    path: 'DictList',
+    name: '数据字典',
+    component: () => import('@/pages/system/DictList')
+  },
+  DictCateList: {
+    path: 'DictCateList',
+    name: '数据字典类型',
+    component: () => import('@/pages/system/DictCateList')
+  },
+  WholeSaler: {
+    path: 'WholeSalerList',
+    name: '经销商',
+    component: () => import('@/pages/system/WholeSalerList')
+  },
+  DeliveryCompany: {
+    path: 'DeliveryCompanyList',
+    name: '快递公司',
+    component: () => import('@/pages/system/DeliveryCompanyList')
+  },
+  OpLog: {
+    path: 'OpLog',
+    name: '操作日志',
+    component: () => import('@/pages/system/OpLog')
+  },
+
+
   form: {
     name: '表单页',
     icon: 'form',

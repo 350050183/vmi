@@ -27,7 +27,7 @@ const options = {
       redirect: '/login',
       children: [
         {
-          path: 'dashboard',
+          path: 'home',
           name: 'Dashboard',
           meta: {
             icon: 'dashboard'
@@ -42,12 +42,12 @@ const options = {
                   closable: false
                 }
               },
-              component: () => import('@/pages/dashboard/workplace'),
+              component: () => import('@/pages/home/workplace'),
             },
             {
               path: 'analysis',
-              name: '分析页',
-              component: () => import('@/pages/dashboard/analysis'),
+              name: '业绩分析',
+              component: () => import('@/pages/home/analysis'),
             }
           ]
         },

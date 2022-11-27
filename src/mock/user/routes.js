@@ -16,7 +16,7 @@ Mock.mock(`${process.env.VUE_APP_API_BASE_URL}/routes`, 'get', () => {
       },
       {
         router: 'basicForm',
-        name: '验权表单11',
+        name: '验权表单',
         icon: 'file-excel',
         authority: 'queryForm'
       },

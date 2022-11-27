@@ -1,7 +1,7 @@
 <template>
   <div class="standard-table">
     <div class="alert">
-      <a-alert type="info" :show-icon="true" v-if="selectedRows">
+      <a-alert type="info" :show-icon="true" v-if="selectedRows.length>0">
         <div class="message" slot="message">
           已选择&nbsp;<a>{{selectedRows.length}}</a>&nbsp;项 <a class="clear" @click="onClear">清空</a>
           <template  v-for="(item, index) in needTotalList" >
@@ -48,7 +48,7 @@ export default {
     dataSource: Array,
     rowKey: {
       type: [String, Function],
-      default: 'key'
+      default: 'id'
     },
     pagination: {
       type: [Object, Boolean],
