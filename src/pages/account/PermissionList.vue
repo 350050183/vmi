@@ -48,7 +48,7 @@
       </div>
       <div>
         <a-space class="operator">
-          <a-button @click="addNew" type="primary">新建</a-button>
+          <a-button @click="addNew(0)" type="primary">新建</a-button>
           <a-dropdown>
             <a-menu @click="handleMenuClick" slot="overlay">
               <a-menu-item key="delete">删除</a-menu-item>
@@ -71,6 +71,10 @@
             @selectedRowChange="onSelectChange"
         >
           <div slot="action" slot-scope="{text, record}">
+            <a style="margin-right: 8px" @click="addNew(record.id)">
+              <a-icon type="plus"/>
+              添加子权限
+            </a>
             <a style="margin-right: 8px" @click="onBeforeEdit(record.id)">
               <a-icon type="edit"/>
               修改
@@ -85,11 +89,12 @@
             </a>
           </div>
           <div slot="deleteRender" slot-scope="{text, record}"><span :style="record.is_delete==1?'color:red':''">{{renderDeleteStatus(record.is_delete)}}</span></div>
+          <div slot="sortSlot" slot-scope="{text, record}"><a-input type="number" :value="record.sort" size="normal"/></div>
         </standard-table>
       </div>
     </a-card>
     <a-drawer
-        title="类别管理"
+        title="权限管理"
         placement="right"
         :closable="false"
         :visible="isDrawerVisible"
@@ -186,6 +191,13 @@ const columns = [
     sorter: true
   },
   {
+    title: '排序',
+    dataIndex: 'sort',
+    needTotal: false,
+    width: 100,
+    scopedSlots: {customRender: 'sortSlot'}
+  },
+  {
     title: '操作',
     scopedSlots: {customRender: 'action'}
   }
@@ -198,6 +210,7 @@ export default {
     return {
       isEnterEditForm: false,
       currentEditId: 0,
+      currentParentId: 0,
       form: this.$form.createForm(this),
       isDrawerVisible: false,
       createNew: false,
@@ -210,6 +223,7 @@ export default {
       name: '',
       code: '',
       is_delete: '0',
+      parent_id: '0',
       pagination: {
         current: 1,
         pageSize: 20,
@@ -237,10 +251,11 @@ export default {
     afterDrawerVisibleChange(val) {
       console.log('afterDrawerVisibleChange', val)
     },
-    addNew() {
+    addNew(parentId) {
       this.isEnterEditForm = false
       this.isDrawerVisible = true
       this.currentEditId = 0
+      this.currentParentId = parentId
     },
     onCreate(e) {
       e.preventDefault();
@@ -272,7 +287,6 @@ export default {
           this.form.setFieldsValue(detail)
         })
       })
-
     },
     onEdit(e) {
       e.preventDefault();
