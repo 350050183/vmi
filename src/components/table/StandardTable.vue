@@ -1,7 +1,7 @@
 <template>
   <div class="standard-table">
     <div class="alert">
-      <a-alert type="info" :show-icon="true" v-if="selectedRows.length>0">
+      <a-alert type="info" :show-icon="true" v-if="selectedRows.length>100">
         <div class="message" slot="message">
           已选择&nbsp;<a>{{selectedRows.length}}</a>&nbsp;项 <a class="clear" @click="onClear">清空</a>
           <template  v-for="(item, index) in needTotalList" >
@@ -24,6 +24,7 @@
       :expandedRowRender="expandedRowRender"
       @change="onChange"
       :rowSelection="selectedRows ? {selectedRowKeys, onSelect, onSelectAll} : undefined"
+      :defaultExpandAllRows="defaultExpandAllRows"
     >
       <template slot-scope="text, record, index" :slot="slot" v-for="slot in Object.keys($scopedSlots).filter(key => key !== 'expandedRowRender') ">
         <slot :name="slot" v-bind="{text, record, index}"></slot>
@@ -42,6 +43,10 @@
 export default {
   name: 'StandardTable',
   props: {
+    defaultExpandAllRows:{
+      type:[Boolean],
+      default:true
+    },
     bordered: Boolean,
     loading: [Boolean, Object],
     columns: Array,
@@ -56,10 +61,11 @@ export default {
     },
     selectedRows: Array,
     expandedRowKeys: Array,
-    expandedRowRender: Function
+    expandedRowRender: Function,
   },
   data () {
     return {
+      // expandAll:true,
       needTotalList: []
     }
   },
@@ -88,7 +94,8 @@ export default {
       }
       return false
     },
-    onSelectAll(selected, rows) {
+    onSelectAll(selected, rows, changeRows) {
+      // console.log(selected,rows, changeRows)
       const {getKey, contains} = this
       const unselected = this.dataSource.filter(item => !contains(rows, item, this.rowKey))
       const _selectedRows = this.selectedRows.filter(item => !contains(unselected, item, this.rowKey))
@@ -97,7 +104,7 @@ export default {
       rows.forEach(item => set[getKey(item)] = item)
       const _rows = Object.values(set)
       this.$emit('update:selectedRows', _rows)
-      this.$emit('selectedRowChange', _rows.map(item => getKey(item)), _rows)
+      this.$emit('selectedRowChange', _rows.map(item => getKey(item)), _rows,changeRows,selected)
     },
     getKey(record) {
       const {rowKey} = this
@@ -114,7 +121,7 @@ export default {
       const {equals, selectedRows, getKey} = this
       const _selectedRows = selected ? [...selectedRows, record] : selectedRows.filter(row => !equals(row, record))
       this.$emit('update:selectedRows', _selectedRows)
-      this.$emit('selectedRowChange', _selectedRows.map(item => getKey(item)), _selectedRows)
+      this.$emit('selectedRowChange', _selectedRows.map(item => getKey(item)), _selectedRows, record, selected)
     },
     initTotalList (columns) {
       return columns.filter(item => item.needTotal)

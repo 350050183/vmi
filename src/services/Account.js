@@ -13,6 +13,9 @@ export async function add(params){
 export async function edit(params){
     return request(ACCOUNT+'edit', METHOD.POST, params,{})
 }
+export async function reset_password(params){
+    return request(ACCOUNT+'resetPassword', METHOD.POST, params,{})
+}
 export async function del(params){
     return request(ACCOUNT+'del', METHOD.POST, params,{})
 }
@@ -25,6 +28,7 @@ export default {
     get,
     add,
     edit,
+    reset_password,
     del,
     undel
 }

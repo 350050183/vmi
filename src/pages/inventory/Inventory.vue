@@ -71,7 +71,7 @@
             @selectedRowChange="onSelectChange"
         >
           <div slot="action" slot-scope="{text, record}">
-            <a style="margin-right: 8px" @click="onBeforeEdit(record.id)">
+            <a style="margin-right: 8px;margin-left: 8px" @click="onBeforeEdit(record.id)">
               <a-icon type="edit"/>
               修改
             </a>
@@ -89,7 +89,7 @@
       </div>
     </a-card>
     <a-drawer
-        title="管理"
+        title="库存管理"
         placement="right"
         :closable="false"
         :visible="isDrawerVisible"
@@ -99,75 +99,66 @@
     >
       <a-form :form="form" layout="vertical" hide-required-mark>
         <a-row :gutter="16">
-          <a-col :span="12">
-            <a-form-item label="名称">
-              <a-input
-                  v-decorator="[
-                  'name',
-                  {
-                    rules: [{ required: true, message: '请输入名称' }],
-                  },
-                ]"
-                  placeholder="请输入名称"
-              />
-            </a-form-item>
-          </a-col>
-          <a-col :span="12">
-            <a-form-item label="编码">
-              <a-input
-                  v-decorator="[
-                  'code',
-                  {
-                    rules: [{ required: true, message: '请输入编码' }],
-                  },
-                ]"
-                  style="width: 100%"
-                  placeholder="请输入编码"
-              />
-            </a-form-item>
-          </a-col>
-        </a-row>
-        <a-row :gutter="16">
-          <a-col :span="12">
-            <a-form-item label="联系人">
-              <a-input
-                  v-decorator="[
-                  'contact',
-                  {
-                    rules: [{ required: true, message: '请输入联系人' }],
-                  },
-                ]"
-                  placeholder="请输入联系人"
-              />
-            </a-form-item>
-          </a-col>
-          <a-col :span="12">
-            <a-form-item label="电话">
-              <a-input
-                  v-decorator="[
-                  'phone',
-                  {
-                    rules: [{ required: true, message: '请输入电话' }],
-                  },
-                ]"
-                  style="width: 100%"
-                  placeholder="请输入电话"
-              />
-            </a-form-item>
-          </a-col>
-        </a-row>
-        <a-row :gutter="16">
           <a-col :span="24">
-            <a-form-item label="地址">
+            <a-form-item label="产品名称">
+              <a-select
+                  v-decorator="[
+                  'product_id',
+                  {
+                    rules: [{ required: true, message: '请选择产品' }],
+                  },
+                ]" placeholder="请选择产品" @change="this.getSkuData">
+                <a-select-option value="">请选择</a-select-option>
+                <a-select-option v-for="item in productDataSource" :key="item.id" :value="item.id">{{item.name}}</a-select-option>
+              </a-select>
+              <a-button @click="this.getProductData" size="small" style="margin-right:8px;">刷新</a-button>
+            </a-form-item>
+          </a-col>
+        </a-row>
+        <a-row :gutter="16">
+          <a-col :span="12">
+            <a-form-item label="产品SKU">
+              <a-select
+                  v-decorator="[
+                  'sku_id',
+                  {
+                    rules: [{ required: true, message: '请选择产品SKU' }],
+                  },
+                ]" placeholder="请选择产品SKU">
+                <a-select-option value="">请选择</a-select-option>
+                <a-select-option v-for="item in skuDataSource" :key="item.id" :value="item.id">{{item.name}}</a-select-option>
+              </a-select>
+              <a-button @click="this.getSkuData" size="small" style="margin-right:8px;">刷新</a-button>
+            </a-form-item>
+          </a-col>
+        </a-row>
+        <a-row :gutter="16">
+          <a-col :span="12">
+            <a-form-item label="变更原因">
+              <a-select
+                  v-decorator="[
+                  'reason_id',
+                  {
+                    rules: [{ required: true, message: '请选择' }],
+                  },
+                ]" placeholder="请选择">
+                <a-select-option value="">请选择</a-select-option>
+                <a-select-option v-for="item in stockChangeTypeDataSource" :key="item.id" :value="item.id">{{item.name}}</a-select-option>
+              </a-select>
+            </a-form-item>
+          </a-col>
+        </a-row>
+        <a-row :gutter="16">
+          <a-col :span="12">
+            <a-form-item label="库存变化量">
               <a-input
                   v-decorator="[
-                  'address',
+                  'stock',
                   {
-                    rules: [{ required: true, message: '请输入地址' }],
+                    rules: [{ required: true, message: '请输入库存变化量，扣减输入负值' }],
                   },
                 ]"
-                  style="width: 100%"
-                  placeholder="请输入地址"
+                  placeholder="请输入库存变化量，扣减输入负值"
               />
             </a-form-item>
           </a-col>
@@ -178,7 +169,7 @@
                 label="备注"
             >
               <a-textarea :auto-size="{ minRows: 3, maxRows: 5 }"
-                  v-decorator="[
+                          v-decorator="[
                   'memo',
                   {
                     rules: [{ required: true, message: '请填写备注' }],
@@ -222,29 +213,25 @@
 
 <script>
 import StandardTable from '@/components/table/StandardTable'
-import {index, add, edit, del, undel, get} from "@/services/DeliveryCompany";
-import {index as dictIndex} from "@/services/Dict";
+import {index, add, edit, del, undel, get} from "@/services/Inventory";
+import {index as productIndex} from "@/services/Product";
+import {index as skuIndex} from "@/services/ProductSku";
+import {mapGetters} from "vuex";
 
 const columns = [
   {
-    title: '名称',
-    dataIndex: 'name',
+    title: '产品',
+    dataIndex: 'product_id',
     // scopedSlots: {customRender: 'name'}
   },
   {
-    title: '编码',
-    dataIndex: 'code',
+    title: 'SKU',
+    dataIndex: 'sku_id',
     // scopedSlots: {customRender: 'code'}
   },
   {
-    title: '联系人',
-    dataIndex: 'contact',
-    // scopedSlots: {customRender: 'code'}
-  },
-  {
-    title: '电话',
-    dataIndex: 'phone',
-    // scopedSlots: {customRender: 'code'}
+    title: '库存',
+    dataIndex: 'stock',
   },
   {
     title: '状态',
@@ -264,11 +251,10 @@ const columns = [
 ]
 
 export default {
-  name: 'DeliveryCompanyList',
+  name: 'Inventory',
   components: {StandardTable},
   data() {
     return {
-      onlinePlatformDataSource:[],
       isEnterEditForm: false,
       currentEditId: 0,
       form: this.$form.createForm(this),
@@ -276,6 +262,8 @@ export default {
       createNew: false,
       advanced: true,
       columns: columns,
+      productDataSource: [],
+      skuDataSource: [],
       dataSource: [],
       selectedRows: [],
       newName: '',
@@ -293,11 +281,16 @@ export default {
   authorize: {
     deleteRecord: 'delete'
   },
+  computed: {
+    stockChangeTypeDataSource: function (){
+      return this.dictByCateCode()('stock_change_type')
+    }
+  },
   mounted() {
-    this.getOnlinePlatformData()
-    this.getData()
+    this.getProductData().then(()=>this.getSkuData()).then(()=>this.getData())
   },
   methods: {
+    ...mapGetters('dict',['dictByCateCode']),
     renderDeleteStatus(is_delete){
       return parseInt(is_delete)===1?'删除':'正常'
     },
@@ -433,18 +426,7 @@ export default {
       this.pagination.pageSize = pageSize
       this.getData()
     },
-    getOnlinePlatformData() {
-      dictIndex({
-        cate_code: 'online_platform',
-        is_delete: this.is_delete,
-        page: 1,
-        pageSize: 99999
-      }).then(res => {
-        const {list} = res?.data?.data ?? {}
-        this.onlinePlatformDataSource = list
-      })
-    },
-    getData() {
+    async getData() {
       index({
         name: this.name,
         code: this.code,
@@ -457,6 +439,36 @@ export default {
         this.pagination.current = page
         this.pagination.pageSize = pageSize
         this.pagination.total = total
+      })
+    },
+    async getProductData() {
+      productIndex({
+        is_delete: 0,
+        pageSize: 99999
+      }).then(res => {
+        const {list} = res?.data?.data ?? {}
+        this.productDataSource = list
+      })
+    },
+    async getSkuData() {
+      // this.$forceUpdate()
+      this.$nextTick(()=>{
+
+        const product_id = this.form.getFieldValue('product_id')
+        if(product_id==undefined || !product_id){
+          console.log('[getSkuData] product is undefined')
+          return
+        }
+        console.log('change product id:',this.form.getFieldValue('product_id'))
+        this.form.resetFields('sku_id')
+        skuIndex({
+          product_id: this.form.getFieldValue('product_id'),
+          is_delete: 0,
+          pageSize: 99999
+        }).then(res => {
+          const {list} = res?.data?.data ?? {}
+          this.skuDataSource = list
+        })
       })
     },
     deleteRecord(key) {

@@ -8,14 +8,22 @@
             <a-row>
               <a-col :md="8" :sm="24">
                 <a-form-item
-                    label="帐号"
+                    label="名称"
                     :labelCol="{span: 5}"
                     :wrapperCol="{span: 18, offset: 1}"
                 >
                   <a-input placeholder="请输入" v-model="name"/>
                 </a-form-item>
               </a-col>
-
+              <a-col :md="8" :sm="24">
+                <a-form-item
+                    label="编码"
+                    :labelCol="{span: 5}"
+                    :wrapperCol="{span: 18, offset: 1}"
+                >
+                  <a-input placeholder="请输入" v-model="code"/>
+                </a-form-item>
+              </a-col>
               <a-col :md="8" :sm="24">
                 <a-form-item
                     label="状态"
@@ -63,10 +71,6 @@
             @selectedRowChange="onSelectChange"
         >
           <div slot="action" slot-scope="{text, record}">
-            <span style="margin-right: 8px">
-              <a-icon type="edit"/>
-              <router-link :to="`/account/Account2Role`" >角色分配</router-link>
-            </span>
             <a style="margin-right: 8px" @click="onBeforeEdit(record.id)">
               <a-icon type="edit"/>
               修改
@@ -81,12 +85,11 @@
             </a>
           </div>
           <div slot="deleteRender" slot-scope="{text, record}"><span :style="record.is_delete==1?'color:red':''">{{renderDeleteStatus(record.is_delete)}}</span></div>
-          <div slot="wholesaler_id" slot-scope="{text, record}">{{renderWholeSaler(record.wholesaler_id)}}</div>
         </standard-table>
       </div>
     </a-card>
     <a-drawer
-        title="帐号管理"
+        title="类别管理"
         placement="right"
         :closable="false"
         :visible="isDrawerVisible"
@@ -97,50 +100,30 @@
       <a-form :form="form" layout="vertical" hide-required-mark>
         <a-row :gutter="16">
           <a-col :span="12">
-            <a-form-item label="帐号">
+            <a-form-item label="名称">
               <a-input
                   v-decorator="[
                   'name',
                   {
-                    rules: [{ required: true, message: '请输入帐号名称' }],
+                    rules: [{ required: true, message: '请输入名称' }],
                   },
                 ]"
-                  placeholder="请输入帐号名称"
-                  :disabled="isEnterEditForm"
+                  placeholder="请输入名称"
               />
             </a-form-item>
           </a-col>
           <a-col :span="12">
-            <a-form-item label="密码" v-if="!isEnterEditForm">
+            <a-form-item label="编码">
               <a-input
                   v-decorator="[
-                  'password',
+                  'code',
                   {
-                    rules: [{ required: true, message: '请输入密码' }],
+                    rules: [{ required: true, message: '请输入编码' }],
                   },
                 ]"
                   style="width: 100%"
-                  placeholder="请输入密码"
+                  placeholder="请输入编码"
               />
-            </a-form-item>
-          </a-col>
-        </a-row>
-        <a-row :gutter="16">
-          <a-col :span="12">
-            <a-form-item
-                label="经销商"
-            >
-              <a-select
-                  v-decorator="[
-                  'wholesaler_id',
-                  {
-                    rules: [{ required: true, message: '请选择经销商' }],
-                  },
-                ]" placeholder="请选择">
-                <a-select-option value="">请选择</a-select-option>
-                <a-select-option v-for="item in wholesalerDataSource" :key="item.id" :value="item.id">{{item.name}}</a-select-option>
-              </a-select>
-              <router-link :to="`/system/WholeSaler`" >经销商管理</router-link>
             </a-form-item>
           </a-col>
         </a-row>
@@ -178,19 +161,18 @@
 
 <script>
 import StandardTable from '@/components/table/StandardTable'
-import {index, add, edit, del, undel, get} from "@/services/Account";
-import {index as wholeSalerIndex} from "@/services/WholeSaler";
+import {index, add, edit, del, undel, get} from "@/services/DictCate";
 
 const columns = [
   {
-    title: '帐号',
+    title: '名称',
     dataIndex: 'name',
     // scopedSlots: {customRender: 'name'}
   },
   {
-    title: '分销商',
-    dataIndex: 'wholesaler_id',
-    scopedSlots: {customRender: 'wholesaler_id'}
+    title: '编码',
+    dataIndex: 'code',
+    // scopedSlots: {customRender: 'code'}
   },
   {
     title: '状态',
@@ -210,11 +192,10 @@ const columns = [
 ]
 
 export default {
-  name: 'AccountList',
+  name: 'DictCate',
   components: {StandardTable},
   data() {
     return {
-      wholesalerDataSource:[],
       isEnterEditForm: false,
       currentEditId: 0,
       form: this.$form.createForm(this),
@@ -225,9 +206,9 @@ export default {
       dataSource: [],
       selectedRows: [],
       newName: '',
-      newWholesalerId: '',
+      newCode: '',
       name: '',
-      wholesaler_id: '',
+      code: '',
       is_delete: '0',
       pagination: {
         current: 1,
@@ -240,14 +221,11 @@ export default {
     deleteRecord: 'delete'
   },
   mounted() {
-    this.getWholesalerData().then(()=>this.getData())
+    this.getData()
   },
   methods: {
     renderDeleteStatus(is_delete){
       return parseInt(is_delete)===1?'删除':'正常'
-    },
-    renderWholeSaler(wholesaler_id){
-      return this.wholesalerDataSource.filter(item=>(item.id)===(wholesaler_id))[0]?.name
     },
     handleReset() {
       this.form.resetFields();
@@ -381,26 +359,14 @@ export default {
       this.pagination.pageSize = pageSize
       this.getData()
     },
-    async getWholesalerData(){
-      await wholeSalerIndex({
-        is_delete: 0,
-        page: 1,
-        pageSize: 99999
-      }).then(res => {
-        console.log('getWholesalerData')
-        const {list} = res?.data?.data ?? {}
-        this.wholesalerDataSource = list
-      })
-    },
-    async getData() {
-      await index({
+    getData() {
+      index({
         name: this.name,
         code: this.code,
         is_delete: this.is_delete,
         page: this.pagination.current,
         pageSize: this.pagination.pageSize
       }).then(res => {
-        console.log('getData')
         const {list, page, pageSize, total} = res?.data?.data ?? {}
         this.dataSource = list
         this.pagination.current = page

@@ -6,20 +6,7 @@
           <div>搜索</div>
           <div>
             <a-row>
-              <a-col :md="6" :sm="24">
-                <a-form-item
-                    label="分类"
-                    :labelCol="{span: 5}"
-                    :wrapperCol="{span: 18, offset: 1}"
-                >
-                  <a-select placeholder="请选择" v-model="cate_id">
-                    <a-select-option value="">请选择</a-select-option>
-                    <a-select-option v-for="item in cateDataSource" :key="item.id" :value="item.id">{{item.name}}</a-select-option>
-                  </a-select>
-                  <router-link :to="`DictCateList`" >类型管理</router-link>
-                </a-form-item>
-              </a-col>
-              <a-col :md="6" :sm="24">
+              <a-col :md="8" :sm="24">
                 <a-form-item
                     label="名称"
                     :labelCol="{span: 5}"
@@ -28,7 +15,7 @@
                   <a-input placeholder="请输入" v-model="name"/>
                 </a-form-item>
               </a-col>
-              <a-col :md="6" :sm="24">
+              <a-col :md="8" :sm="24">
                 <a-form-item
                     label="编码"
                     :labelCol="{span: 5}"
@@ -37,7 +24,7 @@
                   <a-input placeholder="请输入" v-model="code"/>
                 </a-form-item>
               </a-col>
-              <a-col :md="6" :sm="24">
+              <a-col :md="8" :sm="24">
                 <a-form-item
                     label="状态"
                     :labelCol="{span: 5}"
@@ -84,7 +71,8 @@
             @selectedRowChange="onSelectChange"
         >
           <div slot="action" slot-scope="{text, record}">
-            <a style="margin-right: 8px" @click="onBeforeEdit(record.id)">
+            <router-link :to="'WholeSalerShop?wholesaler_id='+record.id"><a-icon type="edit"/>店铺管理</router-link>
+            <a style="margin-right: 8px;margin-left: 8px" @click="onBeforeEdit(record.id)">
               <a-icon type="edit"/>
               修改
             </a>
@@ -97,13 +85,12 @@
               恢复
             </a>
           </div>
-          <div slot="cateName" slot-scope="{text, record}">{{renderCateId(record.cate_id)}}</div>
           <div slot="deleteRender" slot-scope="{text, record}"><span :style="record.is_delete==1?'color:red':''">{{renderDeleteStatus(record.is_delete)}}</span></div>
         </standard-table>
       </div>
     </a-card>
     <a-drawer
-        title="类别管理"
+        title="经销商管理"
         placement="right"
         :closable="false"
         :visible="isDrawerVisible"
@@ -112,25 +99,6 @@
         width="640"
     >
       <a-form :form="form" layout="vertical" hide-required-mark>
-        <a-row :gutter="16">
-          <a-col :span="12">
-            <a-form-item
-                label="分类"
-            >
-              <a-select
-                  v-decorator="[
-                  'cate_id',
-                  {
-                    rules: [{ required: true, message: '请选择类别' }],
-                  },
-                ]" placeholder="请选择">
-                <a-select-option value="">请选择</a-select-option>
-                <a-select-option v-for="item in cateDataSource" :key="item.id" :value="item.id">{{item.name}}</a-select-option>
-              </a-select>
-              <router-link :to="`DictCateList`" >类型管理</router-link>
-            </a-form-item>
-          </a-col>
-        </a-row>
         <a-row :gutter="16">
           <a-col :span="12">
             <a-form-item label="名称">
@@ -160,6 +128,72 @@
             </a-form-item>
           </a-col>
         </a-row>
+        <a-row :gutter="16">
+          <a-col :span="12">
+            <a-form-item label="联系人">
+              <a-input
+                  v-decorator="[
+                  'contact',
+                  {
+                    rules: [{ required: true, message: '请输入联系人' }],
+                  },
+                ]"
+                  placeholder="请输入联系人"
+              />
+            </a-form-item>
+          </a-col>
+          <a-col :span="12">
+            <a-form-item label="电话">
+              <a-input
+                  v-decorator="[
+                  'phone',
+                  {
+                    rules: [{ required: true, message: '请输入电话' }],
+                  },
+                ]"
+                  style="width: 100%"
+                  placeholder="请输入电话"
+              />
+            </a-form-item>
+          </a-col>
+        </a-row>
+        <a-row :gutter="16">
+          <a-col :span="12">
+          </a-col>
+        </a-row>
+        <a-row :gutter="16">
+
+          <a-col :span="24">
+            <a-form-item label="地址">
+              <a-input
+                  v-decorator="[
+                  'address',
+                  {
+                    rules: [{ required: true, message: '请输入地址' }],
+                  },
+                ]"
+                  placeholder="请输入地址"
+              />
+            </a-form-item>
+          </a-col>
+        </a-row>
+        <a-row :gutter="16">
+          <a-col :span="24">
+            <a-form-item
+                label="备注"
+            >
+              <a-textarea :auto-size="{ minRows: 3, maxRows: 5 }"
+                  v-decorator="[
+                  'memo',
+                  {
+                    rules: [{ required: true, message: '请填写备注' }],
+                  },
+                ]" placeholder="请输入备注">
+              </a-textarea>
+            </a-form-item>
+          </a-col>
+        </a-row>
+
       </a-form>
       <div
           :style="{
@@ -193,15 +227,11 @@
 
 <script>
 import StandardTable from '@/components/table/StandardTable'
-import {index as cateIndex} from "@/services/DictCate";
-import {index, add, edit, del, undel, get} from "@/services/Dict";
+import {index, add, edit, del, undel, get} from "@/services/WholeSaler";
+import {mapGetters} from "vuex";
+import WholeSalerShop from "@/pages/system/WholeSalerShop.vue";
 
 const columns = [
-  {
-    title: '分类',
-    dataIndex: 'cate_id',
-    scopedSlots: {customRender: 'cateName'}
-  },
   {
     title: '名称',
     dataIndex: 'name',
@@ -213,8 +243,19 @@ const columns = [
     // scopedSlots: {customRender: 'code'}
   },
   {
+    title: '联系人',
+    dataIndex: 'contact',
+    // scopedSlots: {customRender: 'code'}
+  },
+  {
+    title: '电话',
+    dataIndex: 'phone',
+    // scopedSlots: {customRender: 'code'}
+  },
+  {
     title: '状态',
     dataIndex: 'is_delete',
+    needTotal: false,
     scopedSlots: {customRender: 'deleteRender'}
   },
   {
@@ -229,11 +270,10 @@ const columns = [
 ]
 
 export default {
-  name: 'DictList',
+  name: 'WholeSaler',
   components: {StandardTable},
   data() {
     return {
-      cateDataSource:[],
       isEnterEditForm: false,
       currentEditId: 0,
       form: this.$form.createForm(this),
@@ -245,7 +285,6 @@ export default {
       selectedRows: [],
       newName: '',
       newCode: '',
-      cate_id: '',
       name: '',
       code: '',
       is_delete: '0',
@@ -260,12 +299,13 @@ export default {
     deleteRecord: 'delete'
   },
   mounted() {
-    this.getCateData().then(()=>this.getData())
+    this.getData()
   },
   methods: {
-    renderCateId(cate_id){
-      return this.cateDataSource.filter(item=>item.id===cate_id)[0]?.name
+    WholeSalerShop() {
+      return WholeSalerShop
     },
+    ...mapGetters('dict',['dictByCateCode']),
     renderDeleteStatus(is_delete){
       return parseInt(is_delete)===1?'删除':'正常'
     },
@@ -385,10 +425,9 @@ export default {
       })
     },
     onSearchReset(){
-      this.cate_id=''
       this.name=''
       this.code=''
-      this.is_delete=''
+      this.is_delete='0'
       this.onSearch()
     },
     onSearch() {
@@ -402,19 +441,8 @@ export default {
       this.pagination.pageSize = pageSize
       this.getData()
     },
-    async getCateData(){
-      await cateIndex({
-        is_delete: 0,
-        page: 1,
-        pageSize: 99999
-      }).then(res => {
-        const {list} = res?.data?.data ?? {}
-        this.cateDataSource = list
-      })
-    },
-    async getData() {
-      await index({
-        cate_id: this.cate_id,
+    getData() {
+      index({
         name: this.name,
         code: this.code,
         is_delete: this.is_delete,

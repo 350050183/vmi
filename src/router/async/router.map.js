@@ -30,115 +30,120 @@ const routerMap = {
     name: '业绩分析',
     component: () => import('@/pages/home/analysis')
   },
-  order: {
-    name: '订单管理',
+  order2: {
+    name: '订单',
     icon: 'table',
     component: view.page
   },
   CreateOrder: {
     path: 'CreateOrder',
-    name: '创建订单',
+    name: '下订单',
     component: () => import('@/pages/order/create/CreateOrder')
   },
-  OrderList: {
-    path: 'OrderList',
+  Order: {
+    path: 'Order',
     name: '订单查询',
-    component: () => import('@/pages/order/OrderList')
+    component: () => import('@/pages/order/Order')
   },
   OrderSummary: {
     path: 'OrderSummary',
     name: '订单分析',
     component: () => import('@/pages/order/OrderSummary')
   },
-  product: {
+  product2: {
     name: '产品',
     icon: 'table',
     component: view.page
   },
   CreateProduct: {
     path: 'CreateProduct',
-    name: '创建产品',
+    name: '添加产品',
     component: () => import('@/pages/product/create/CreateProduct')
   },
-  ProductList: {
-    path: 'ProductList',
-    name: '产品查询',
-    component: () => import('@/pages/product/ProductList')
+  Product: {
+    path: 'Product',
+    name: '产品管理',
+    component: () => import('@/pages/product/Product.vue')
   },
-  inventory: {
+  Sku: {
+    path: 'SkuList',
+    name: '产品SKU管理',
+    component: () => import('@/pages/product/Sku.vue')
+  },
+  inventory2: {
     name: '库存',
     icon: 'table',
     component: view.page
   },
-  InventoryIn: {
-    path: 'InventoryIn',
-    name: '入库',
-    component: () => import('@/pages/inventory/in/InventoryIn')
+  Inventory: {
+    path: 'Inventory',
+    name: '库存管理',
+    component: () => import('@/pages/inventory/Inventory.vue')
   },
-  InventoryOut: {
-    path: 'InventoryOut',
-    name: '出库',
-    component: () => import('@/pages/inventory/out/InventoryOut')
+  InventoryLog: {
+    path: 'InventoryLog',
+    name: '库存变更记录',
+    component: () => import('@/pages/inventory/InventoryLog')
   },
-  InventoryList: {
-    path: 'InventoryList',
-    name: '库存查询',
-    component: () => import('@/pages/inventory/InventoryList')
-  },
-  account: {
+  account2: {
     name: '帐号',
     icon: 'table',
     component: view.page
   },
-  AccountList: {
-    path: 'AccountList',
+  Account: {
+    path: 'Account',
     name: '帐号列表',
-    component: () => import('@/pages/account/AccountList')
+    component: () => import('@/pages/account/Account.vue')
   },
-  RoleList: {
-    path: 'RoleList',
+  Role: {
+    path: 'Role',
     name: '角色列表',
-    component: () => import('@/pages/account/RoleList')
+    component: () => import('@/pages/account/Role.vue')
   },
-  PermissionList: {
-    path: 'PermissionList',
+  Permission: {
+    path: 'Permission',
     name: '权限列表',
-    component: () => import('@/pages/account/PermissionList')
+    component: () => import('@/pages/account/Permission.vue')
   },
-  Role2Permission: {
-    path: 'Role2Permission',
-    name: '角色权限分配',
-    component: () => import('@/pages/account/Role2Permission')
-  },
-  Account2Role: {
-    path: 'Account2Role',
-    name: '帐号角色分配',
-    component: () => import('@/pages/account/Account2Role')
-  },
+  // Role2Permission: {
+  //   path: 'Role2Permission',
+  //   name: '角色权限分配',
+  //   component: () => import('@/pages/account/Role2Permission')
+  // },
+  // Account2Role: {
+  //   path: 'Account2Role',
+  //   name: '帐号角色分配',
+  //   component: () => import('@/pages/account/Account2Role')
+  // },
   system: {
     name: '系统',
     icon: 'table',
     component: view.page
   },
-  DictList: {
-    path: 'DictList',
+  Dict: {
+    path: 'Dict',
     name: '数据字典',
-    component: () => import('@/pages/system/DictList')
+    component: () => import('@/pages/system/Dict.vue')
   },
-  DictCateList: {
-    path: 'DictCateList',
+  DictCate: {
+    path: 'DictCate',
     name: '数据字典类型',
-    component: () => import('@/pages/system/DictCateList')
+    component: () => import('@/pages/system/DictCate.vue')
   },
   WholeSaler: {
-    path: 'WholeSalerList',
+    path: 'WholeSaler',
     name: '经销商',
-    component: () => import('@/pages/system/WholeSalerList')
+    component: () => import('@/pages/system/WholeSaler.vue')
+  },
+  WholeSalerShop: {
+    path: 'WholeSalerShop',
+    name: '经销商店铺',
+    component: () => import('@/pages/system/WholeSalerShop')
   },
   DeliveryCompany: {
-    path: 'DeliveryCompanyList',
+    path: 'DeliveryCompany',
     name: '快递公司',
-    component: () => import('@/pages/system/DeliveryCompanyList')
+    component: () => import('@/pages/system/DeliveryCompany')
   },
   OpLog: {
     path: 'OpLog',

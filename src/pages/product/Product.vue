@@ -15,15 +15,7 @@
                   <a-input placeholder="请输入" v-model="name"/>
                 </a-form-item>
               </a-col>
-              <a-col :md="8" :sm="24">
-                <a-form-item
-                    label="编码"
-                    :labelCol="{span: 5}"
-                    :wrapperCol="{span: 18, offset: 1}"
-                >
-                  <a-input placeholder="请输入" v-model="code"/>
-                </a-form-item>
-              </a-col>
+
               <a-col :md="8" :sm="24">
                 <a-form-item
                     label="状态"
@@ -71,33 +63,30 @@
             @selectedRowChange="onSelectChange"
         >
           <div slot="action" slot-scope="{text, record}">
-            <a @click="assignPermission(record.id)">
-              <a-icon type="edit"/>
-              权限分配
-            </a>
-            <a @click="onBeforeEdit(record.id)">
+            <router-link :to="'/product/SkuList?id'+record.id"> <a-icon type="edit"/>SKU管理</router-link>
+            <a style="margin-right: 8px;margin-left: 8px" @click="onBeforeEdit(record.id)">
               <a-icon type="edit"/>
               修改
             </a>
-            <a @click="onDel(record.id)" v-auth="`delete`" v-if="record.is_delete==0">
+            <a @click="onDel(record.id)" v-auth:role="`delete`" v-if="record.is_delete==0">
               <a-icon type="delete"/>
               删除
             </a>
-            <a @click="onUnDel(record.id)" v-auth="`delete`" v-if="record.is_delete==1">
+            <a @click="onUnDel(record.id)" v-auth:role="`delete`" v-if="record.is_delete==1">
               <a-icon type="delete"/>
               恢复
             </a>
           </div>
           <div slot="deleteRender" slot-scope="{text, record}"><span :style="record.is_delete==1?'color:red':''">{{renderDeleteStatus(record.is_delete)}}</span></div>
+          <div slot="cate_id" slot-scope="{text, record}">{{renderCateId(record.cate_id)}}</div>
         </standard-table>
       </div>
     </a-card>
     <a-drawer
-        title="类别管理"
+        title="产品管理"
         placement="right"
         :closable="false"
         :visible="isDrawerVisible"
-        :after-visible-change="afterDrawerVisibleChange"
         @close="onDrawerClose"
         width="640"
     >
@@ -109,7 +98,7 @@
                   v-decorator="[
                   'name',
                   {
-                    rules: [{ required: true, message: '请输入名称' }],
+                    rules: [{ required: true, message: '请输入帐号名称' }],
                   },
                 ]"
                   placeholder="请输入名称"
@@ -128,6 +117,65 @@
                   style="width: 100%"
                   placeholder="请输入编码"
               />
+            </a-form-item>
+          </a-col>
+        </a-row>
+        <a-row :gutter="16">
+          <a-col :span="12">
+            <a-form-item
+                label="分类"
+            >
+              <a-select
+                  v-decorator="[
+                  'cate_id',
+                  {
+                    rules: [{ required: true, message: '请选分类' }],
+                  },
+                ]" placeholder="请选择">
+                <a-select-option value="">请选择</a-select-option>
+                <a-select-option v-for="item in cateDataSource" :key="item.id" :value="item.id">{{item.name}}</a-select-option>
+              </a-select>
+            </a-form-item>
+          </a-col>
+        </a-row>
+        <a-row :gutter="16">
+          <a-col :span="24">
+            <a-form-item
+                label="描述"
+            >
+              <a-textarea
+                  v-decorator="[
+                  'desc',
+                  {
+                    rules: [{ required: false, message: '请填写描述' }],
+                  },
+                ]" placeholder="请填写描述" :auto-size="{ minRows: 3, maxRows: 5 }">
+              </a-textarea>
+            </a-form-item>
+          </a-col>
+        </a-row>
+        <a-row :gutter="16">
+          <a-col :span="24">
+            <a-form-item
+                label="上传封面图"
+            >
+              <a-upload
+                  name="cover_img"
+                  list-type="picture-card"
+                  class="avatar-uploader"
+                  :show-upload-list="false"
+                  :action="uploadUrl"
+                  :before-upload="beforeUpload"
+                  @change="handleChange"
+              >
+                <img v-if="imageUrl" :src="imageUrl" alt="avatar" width="128" height="128"/>
+                <div v-else>
+                  <a-icon :type="loading ? 'loading' : 'plus'" />
+                  <div class="ant-upload-text">
+                    Upload
+                  </div>
+                </div>
+              </a-upload>
             </a-form-item>
           </a-col>
         </a-row>
@@ -160,87 +208,14 @@
         </a-button>
       </div>
     </a-drawer>
-    <a-drawer
-        title="角色权限分配"
-        placement="right"
-        :closable="false"
-        :visible="isDrawerVisibleOfPermission"
-        :after-visible-change="afterDrawerVisibleChangeOfPermission"
-        @close="onDrawerCloseOfPermission"
-        width="640"
-    >
-      <a-form :form="form_role" layout="vertical" hide-required-mark >
-        <a-row :gutter="16">
-          <a-col :span="24">
-
-            <standard-table
-                :columns="columnsOfPermission"
-                :dataSource="dataSourceOfPermission"
-                :selectedRows.sync="selectedRowsOfPermission"
-                @clear="onClearOfPermission"
-                @change="onChangeOfPermission"
-                :pagination="{...paginationOfPermission, onChange: onPageChangeOfPermission}"
-                @selectedRowChange="onSelectChangeOfPermission"
-            >
-              <div slot="action" slot-scope="{text, record}">
-                <a-form-item label=".">
-                  <a-checkbox-group
-                      v-decorator="['operation-group-'+record.id, { initialValue: ['list'] }]"
-                  >
-                    <a-checkbox value="list">
-                      查询
-                    </a-checkbox>
-                    <a-checkbox value="add">
-                      新增
-                    </a-checkbox>
-                    <a-checkbox value="edit">
-                      修改
-                    </a-checkbox>
-                    <a-checkbox  value="delete">
-                      删除
-                    </a-checkbox>
-                  </a-checkbox-group>
-                </a-form-item>
-              </div>
-            </standard-table>
-
-          </a-col>
-        </a-row>
-      </a-form>
-      <div
-          :style="{
-          position: 'absolute',
-          right: 0,
-          bottom: 0,
-          width: '100%',
-          borderTop: '1px solid #e9e9e9',
-          padding: '10px 16px',
-          background: '#fff',
-          textAlign: 'right',
-          zIndex: 1,
-        }"
-      >
-        <a-button type="default" :style="{ marginRight: '8px' }" @click="handleResetOfPermission">
-          清空
-        </a-button>
-        <a-button :style="{ marginRight: '8px' }" @click="onDrawerCloseOfPermission">
-          关闭
-        </a-button>
-        <a-button type="primary" @click="onCreatePermission" v-if="!isEnterEditFormOfPermission">
-          保存
-        </a-button>
-        <a-button type="primary" @click="onEditPermission" v-if="isEnterEditFormOfPermission">
-          修改
-        </a-button>
-      </div>
-    </a-drawer>
   </div>
 </template>
 
 <script>
 import StandardTable from '@/components/table/StandardTable'
-import {index, add, edit, del, undel, get} from "@/services/Role";
-import {index as permissionIndex} from "@/services/Permission";
+import {index, add, edit, del, undel, get} from "@/services/Product";
+import {mapGetters} from "vuex";
+import {FILEMANAGER} from '../../services/api'
 
 const columns = [
   {
@@ -249,9 +224,9 @@ const columns = [
     // scopedSlots: {customRender: 'name'}
   },
   {
-    title: '编码',
-    dataIndex: 'code',
-    // scopedSlots: {customRender: 'code'}
+    title: '登录密码',
+    dataIndex: 'cate_id',
+    scopedSlots: {customRender: 'cate_id'}
   },
   {
     title: '状态',
@@ -270,117 +245,110 @@ const columns = [
   }
 ]
 
-const columnsOfPermission = [
-  {
-    title: '权限名称',
-    dataIndex: 'name',
-    // scopedSlots: {customRender: 'name'}
-  },
-  {
-    title: '操作权限',
-    scopedSlots: {customRender: 'action'}
-  }
-]
+function getBase64(img, callback) {
+  const reader = new FileReader();
+  reader.addEventListener('load', () => callback(reader.result));
+  reader.readAsDataURL(img);
+}
 
 export default {
-  name: 'RoleList',
+  name: 'Product',
   components: {StandardTable},
   data() {
     return {
+      uploadedFile:'',
+      uploadUrl:FILEMANAGER+'/upload',
+      loading: false,
+      imageUrl: '',
+      cateDataSource:[],
       isEnterEditForm: false,
-      isEnterEditFormOfPermission: false,
       currentEditId: 0,
-      currentAssignRoleId: 0,
       form: this.$form.createForm(this),
-      form_role: this.$form.createForm(this),
-      isDrawerVisibleOfPermission: false,
       isDrawerVisible: false,
       createNew: false,
       advanced: true,
       columns: columns,
-      columnsOfPermission: columnsOfPermission,
       dataSource: [],
-      dataSourceOfPermission: [],
       selectedRows: [],
-      selectedRowsOfPermission: [],
       newName: '',
-      newCode: '',
+      newWholesalerId: '',
       name: '',
-      code: '',
+      wholesaler_id: '',
       is_delete: '0',
       pagination: {
         current: 1,
         pageSize: 20,
         total: 0
-      },
-      paginationOfPermission: {
-        current: 1,
-        pageSize: 99999,
-        total: 0
       }
     }
   },
   authorize: {
-    deleteRecord: 'delete'
+    // deleteRecord: 'delete'
+    onDel: {check:'delete',type:'role'},
+    onUnDel: {check:'delete',type:'role'}
   },
   mounted() {
-    this.getData()
-    this.getDataOfPermission()
+    this.cateCateData().then(()=>this.getData())
   },
   methods: {
+    ...mapGetters('dict',['dictByCateCode']),
+
+    handleChange(info) {
+      if (info.file.status === 'uploading') {
+        this.loading = true;
+        return;
+      }
+      if (info.file.status === 'done') {
+        // Get this url from response in real world.
+        getBase64(info.file.originFileObj, imageUrl => {
+          this.imageUrl = imageUrl;
+          this.loading = false;
+          if(info.file.response.status=='done'){
+            this.uploadedFile=info.file.response.relative_path
+          }
+        });
+      }
+    },
+    beforeUpload(file) {
+      this.uploadedFile = ''
+      const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png';
+      if (!isJpgOrPng) {
+        this.$message.error('只能上传jpg/png格式');
+      }
+      const isLt2M = file.size / 1024 / 1024 < 10;
+      if (!isLt2M) {
+        this.$message.error('图片不能超过10MB');
+      }
+      return isJpgOrPng && isLt2M;
+    },
+
     renderDeleteStatus(is_delete){
       return parseInt(is_delete)===1?'删除':'正常'
     },
+    renderCateId(cate_id){
+      return this.cateDataSource.filter(item=>(item.id)===(cate_id))[0]?.name
+    },
     handleReset() {
       this.form.resetFields();
-    },
-    handleResetOfPermission() {
-      this.form_role.resetFields();
     },
     onDrawerClose() {
       console.log('onDrawerClose')
       this.isDrawerVisible = false
     },
-    onDrawerCloseOfPermission() {
-      this.isDrawerVisibleOfPermission = false
-    },
-    afterDrawerVisibleChange(val) {
-      console.log('afterDrawerVisibleChange', val)
-    },
-    afterDrawerVisibleChangeOfPermission(val) {
-      console.log('afterDrawerVisibleChangeOfPermission', val)
-    },
     addNew() {
       this.isEnterEditForm = false
       this.isDrawerVisible = true
       this.currentEditId = 0
-    },
-    assignPermission(id) {
-      this.isEnterEditFormOfPermission = false
-      this.isDrawerVisibleOfPermission = true
-      this.currentAssignRoleId = id
+      this.$nextTick(()=>{
+        this.handleReset()
+      })
+
     },
     onCreate(e) {
       e.preventDefault();
       this.form.validateFields((err, values) => {
         if (!err) {
-          add(values).then(res => {
-            const {success, message} = res?.data ?? {}
-            if (success) {
-              this.$message.success(message)
-              this.getData()
-            } else {
-              this.$message.error(message)
-            }
-          })
-        }
-      });
-    },
-    onCreatePermission(e) {
-      e.preventDefault();
-      this.form.validateFields((err, values) => {
-        if (!err) {
-          add(values).then(res => {
+          add({cover_img:this.uploadedFile,...values}).then(res => {
             const {success, message} = res?.data ?? {}
             if (success) {
               this.$message.success(message)
@@ -400,10 +368,10 @@ export default {
       this.$nextTick(() => {
         get({id: id}).then((res) => {
           const detail = res?.data?.data
-          // this.form.getFieldDecorator('name',{initialValue:detail.name})
-          // this.form.getFieldDecorator('code',{initialValue:detail.code})
-          // this.form.getFieldDecorator('value',{initialValue:detail.value})
           this.form.setFieldsValue(detail)
+          if(detail.cover_img && detail.cover_img.length>0){
+            this.imageUrl = process.env.VUE_APP_FILE_BASE_URL+detail.cover_img
+          }
         })
       })
 
@@ -413,27 +381,7 @@ export default {
       this.form.validateFields((err, values) => {
         if (!err) {
           edit({
-            id: this.currentEditId, ...values
-          }).then(res => {
-            const {success, message} = res?.data ?? {}
-            if (success) {
-              this.$message.success(message)
-              this.getData()
-              this.isDrawerVisible = false
-            } else {
-              this.$message.error(message)
-            }
-          })
-        }
-      });
-
-    },
-    onEditPermission(e) {
-      e.preventDefault();
-      this.form.validateFields((err, values) => {
-        if (!err) {
-          edit({
-            id: this.currentEditId, ...values
+            id: this.currentEditId, cover_img:this.uploadedFile,...values
           }).then(res => {
             const {success, message} = res?.data ?? {}
             if (success) {
@@ -513,25 +461,11 @@ export default {
       this.pagination.pageSize = pageSize
       this.getData()
     },
-    onPageChangeOfPermission(page, pageSize) {
-      this.paginationOfPermission.current = page
-      this.paginationOfPermission.pageSize = pageSize
-      this.getDataOfPermission()
+    async cateCateData(){
+      this.cateDataSource=this.dictByCateCode()('product_cate')
     },
-    getDataOfPermission() {
-      permissionIndex({
-        name: this.name,
-        code: this.code,
-        is_delete: this.is_delete,
-        page: 1,
-        pageSize: 99999
-      }).then(res => {
-        const {list} = res?.data?.data ?? {}
-        this.dataSourceOfPermission = list
-      })
-    },
-    getData() {
-      index({
+    async getData() {
+      await index({
         name: this.name,
         code: this.code,
         is_delete: this.is_delete,
@@ -556,30 +490,14 @@ export default {
     onClear() {
       // this.$message.info('您清空了勾选的所有行')
     },
-    onClearOfPermission() {
-      // this.$message.info('您清空了勾选的所有行')
-    },
     onStatusTitleClick() {
       this.$message.info('你点击了状态栏表头')
     },
     onChange() {
       this.$message.info('表格状态改变了')
     },
-    onChangeOfPermission() {
-      this.$message.info('表格状态改变了')
-    },
     onSelectChange() {
       // this.$message.info('选中行改变了')
-    },
-    onSelectChangeOfPermission() {
-      // this.$message.info('onSelectChangeOfPermission')
-      this.selectedRowsOfPermission.map(item=>{
-        let checkGroupName = 'operation-group-'+item.id
-        console.log(checkGroupName)
-        this.form_role.getFieldDecorator(checkGroupName,{'initialValue':['list','add','edit','delete']})
-        this.form_role.setFieldsValue({checkGroupName:['list','add','edit','delete']})
-
-      })
     },
     handleMenuClick(e) {
       if (e.key === 'delete') {
@@ -611,5 +529,20 @@ export default {
   .fold {
     width: 100%;
   }
+}
+
+
+.avatar-uploader > .ant-upload {
+  width: 128px;
+  height: 128px;
+}
+.ant-upload-select-picture-card i {
+  font-size: 32px;
+  color: #999;
+}
+
+.ant-upload-select-picture-card .ant-upload-text {
+  margin-top: 8px;
+  color: #666;
 }
 </style>

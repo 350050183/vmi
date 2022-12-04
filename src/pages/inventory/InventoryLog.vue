@@ -71,7 +71,8 @@
             @selectedRowChange="onSelectChange"
         >
           <div slot="action" slot-scope="{text, record}">
-            <a style="margin-right: 8px" @click="onBeforeEdit(record.id)">
+            <router-link :to="'WholeSalerShop?wholesaler_id='+record.id"><a-icon type="edit"/>店铺管理</router-link>
+            <a style="margin-right: 8px;margin-left: 8px" @click="onBeforeEdit(record.id)">
               <a-icon type="edit"/>
               修改
             </a>
@@ -89,7 +90,7 @@
       </div>
     </a-card>
     <a-drawer
-        title="类别管理"
+        title="经销商管理"
         placement="right"
         :closable="false"
         :visible="isDrawerVisible"
@@ -158,20 +159,21 @@
         </a-row>
         <a-row :gutter="16">
           <a-col :span="12">
-            <a-form-item
-                label="电商平台"
-            >
-              <a-select
+          </a-col>
+        </a-row>
+        <a-row :gutter="16">
+
+          <a-col :span="24">
+            <a-form-item label="地址">
+              <a-input
                   v-decorator="[
-                  'online_platform_id',
+                  'address',
                   {
-                    rules: [{ required: true, message: '请选择电商平台' }],
+                    rules: [{ required: true, message: '请输入地址' }],
                   },
-                ]" placeholder="请选择">
-                <a-select-option value="">请选择</a-select-option>
-                <a-select-option v-for="item in onlinePlatformDataSource" :key="item.id" :value="item.id">{{item.name}}</a-select-option>
-              </a-select>
-              <router-link :to="`DictList`" >电商平台管理</router-link>
+                ]"
+                  placeholder="请输入地址"
+              />
             </a-form-item>
           </a-col>
         </a-row>
@@ -181,7 +183,7 @@
                 label="备注"
             >
               <a-textarea :auto-size="{ minRows: 3, maxRows: 5 }"
-                  v-decorator="[
+                          v-decorator="[
                   'memo',
                   {
                     rules: [{ required: true, message: '请填写备注' }],
@@ -226,7 +228,8 @@
 <script>
 import StandardTable from '@/components/table/StandardTable'
 import {index, add, edit, del, undel, get} from "@/services/WholeSaler";
-import {index as dictIndex} from "@/services/Dict";
+import {mapGetters} from "vuex";
+import WholeSalerShop from "@/pages/system/WholeSalerShop.vue";
 
 const columns = [
   {
@@ -267,11 +270,10 @@ const columns = [
 ]
 
 export default {
-  name: 'WholeSalerList',
+  name: 'InventoryLog',
   components: {StandardTable},
   data() {
     return {
-      onlinePlatformDataSource:[],
       isEnterEditForm: false,
       currentEditId: 0,
       form: this.$form.createForm(this),
@@ -297,10 +299,13 @@ export default {
     deleteRecord: 'delete'
   },
   mounted() {
-    this.getOnlinePlatformData()
     this.getData()
   },
   methods: {
+    WholeSalerShop() {
+      return WholeSalerShop
+    },
+    ...mapGetters('dict',['dictByCateCode']),
     renderDeleteStatus(is_delete){
       return parseInt(is_delete)===1?'删除':'正常'
     },
@@ -435,17 +440,6 @@ export default {
       this.pagination.current = page
       this.pagination.pageSize = pageSize
       this.getData()
-    },
-    getOnlinePlatformData() {
-      dictIndex({
-        cate_code: 'online_platform',
-        is_delete: this.is_delete,
-        page: 1,
-        pageSize: 99999
-      }).then(res => {
-        const {list} = res?.data?.data ?? {}
-        this.onlinePlatformDataSource = list
-      })
     },
     getData() {
       index({

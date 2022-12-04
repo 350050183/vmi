@@ -19,6 +19,12 @@ export async function del(params){
 export async function undel(params){
     return request(ROLE+'undel', METHOD.POST, params,{})
 }
+export async function assign(params){
+    return request(ROLE+'assign', METHOD.POST, params,{})
+}
+export async function get_assign(params){
+    return request(ROLE+'get_assign', METHOD.POST, params,{})
+}
 
 export default {
     index,
@@ -26,5 +32,7 @@ export default {
     add,
     edit,
     del,
-    undel
+    undel,
+    assign,
+    get_assign,
 }

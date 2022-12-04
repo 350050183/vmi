@@ -76,6 +76,7 @@
 <script>
 import CommonLayout from '@/layouts/CommonLayout'
 import {login, getRoutesConfig} from '@/services/user'
+import {index as dictIndex} from '@/services/Dict'
 import {setAuthorization} from '@/utils/request'
 import {loadRoutes} from '@/utils/routerUtil'
 import {mapMutations} from 'vuex'
@@ -97,6 +98,7 @@ export default {
   },
   methods: {
     ...mapMutations('account', ['setUser', 'setPermissions', 'setRoles']),
+    ...mapMutations('dict', ['setDict']),
     onSubmit (e) {
       e.preventDefault()
       this.form.validateFields((err) => {
@@ -123,6 +125,10 @@ export default {
           loadRoutes(routesConfig)
           this.$router.push('/home/workplace')
           this.$message.success(loginRes.message, 3)
+        })
+        //缓存数据字典
+        dictIndex({pageSize:99999}).then((result)=>{
+          this.setDict(result.data.data.list)
         })
       } else {
         this.error = loginRes.message

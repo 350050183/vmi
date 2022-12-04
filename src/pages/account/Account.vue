@@ -8,22 +8,14 @@
             <a-row>
               <a-col :md="8" :sm="24">
                 <a-form-item
-                    label="名称"
+                    label="帐号"
                     :labelCol="{span: 5}"
                     :wrapperCol="{span: 18, offset: 1}"
                 >
                   <a-input placeholder="请输入" v-model="name"/>
                 </a-form-item>
               </a-col>
-              <a-col :md="8" :sm="24">
-                <a-form-item
-                    label="编码"
-                    :labelCol="{span: 5}"
-                    :wrapperCol="{span: 18, offset: 1}"
-                >
-                  <a-input placeholder="请输入" v-model="code"/>
-                </a-form-item>
-              </a-col>
+
               <a-col :md="8" :sm="24">
                 <a-form-item
                     label="状态"
@@ -48,7 +40,7 @@
       </div>
       <div>
         <a-space class="operator">
-          <a-button @click="addNew(0)" type="primary">新建</a-button>
+          <a-button @click="addNew" type="primary">新建</a-button>
           <a-dropdown>
             <a-menu @click="handleMenuClick" slot="overlay">
               <a-menu-item key="delete">删除</a-menu-item>
@@ -71,30 +63,30 @@
             @selectedRowChange="onSelectChange"
         >
           <div slot="action" slot-scope="{text, record}">
-            <a style="margin-right: 8px" @click="addNew(record.id)">
-              <a-icon type="plus"/>
-              添加子权限
-            </a>
             <a style="margin-right: 8px" @click="onBeforeEdit(record.id)">
               <a-icon type="edit"/>
               修改
             </a>
-            <a @click="onDel(record.id)" v-auth="`delete`" v-if="record.is_delete==0">
+            <a style="margin-right: 8px" @click="onBeforeResetPassword(record.id)">
+              <a-icon type="edit"/>
+              重置密码
+            </a>
+            <a @click="onDel(record.id)" v-auth:role="`delete`" v-if="record.is_delete==0">
               <a-icon type="delete"/>
               删除
             </a>
-            <a @click="onUnDel(record.id)" v-auth="`delete`" v-if="record.is_delete==1">
+            <a @click="onUnDel(record.id)" v-auth:role="`delete`" v-if="record.is_delete==1">
               <a-icon type="delete"/>
               恢复
             </a>
           </div>
           <div slot="deleteRender" slot-scope="{text, record}"><span :style="record.is_delete==1?'color:red':''">{{renderDeleteStatus(record.is_delete)}}</span></div>
-          <div slot="sortSlot" slot-scope="{text, record}"><a-input type="number" :value="record.sort" size="normal"/></div>
+          <div slot="wholesaler_id" slot-scope="{text, record}">{{renderWholeSaler(record.wholesaler_id)}}</div>
         </standard-table>
       </div>
     </a-card>
     <a-drawer
-        title="权限管理"
+        title="帐号管理"
         placement="right"
         :closable="false"
         :visible="isDrawerVisible"
@@ -105,30 +97,69 @@
       <a-form :form="form" layout="vertical" hide-required-mark>
         <a-row :gutter="16">
           <a-col :span="12">
-            <a-form-item label="名称">
+            <a-form-item label="帐号">
               <a-input
                   v-decorator="[
                   'name',
                   {
-                    rules: [{ required: true, message: '请输入名称' }],
+                    rules: [{ required: true, message: '请输入帐号名称' }],
                   },
                 ]"
-                  placeholder="请输入名称"
+                  placeholder="请输入帐号名称"
+                  :disabled="isEnterEditForm"
               />
             </a-form-item>
           </a-col>
           <a-col :span="12">
-            <a-form-item label="编码">
+            <a-form-item label="密码" v-if="!isEnterEditForm">
               <a-input
                   v-decorator="[
-                  'code',
+                  'password',
                   {
-                    rules: [{ required: true, message: '请输入编码' }],
+                    rules: [{ required: true, message: '请输入密码' }],
                   },
                 ]"
                   style="width: 100%"
-                  placeholder="请输入编码"
+                  placeholder="请输入密码"
               />
+            </a-form-item>
+          </a-col>
+        </a-row>
+        <a-row :gutter="16">
+          <a-col :span="12">
+            <a-form-item
+                label="经销商"
+            >
+              <a-select
+                  v-decorator="[
+                  'wholesaler_id',
+                  {
+                    rules: [{ required: true, message: '请选择经销商' }],
+                  },
+                ]" placeholder="请选择">
+                <a-select-option value="">请选择</a-select-option>
+                <a-select-option v-for="item in wholesalerDataSource" :key="item.id" :value="item.id">{{item.name}}</a-select-option>
+              </a-select>
+              <a-button @click="this.getWholesalerData" size="small" style="margin-right:8px;">刷新</a-button>
+              <router-link :to="`/system/WholeSaler`" >经销商管理</router-link>
+            </a-form-item>
+          </a-col>
+          <a-col :span="12">
+            <a-form-item
+                label="角色"
+            >
+              <a-select
+                  v-decorator="[
+                  'role_ids',
+                  {
+                    rules: [{ required: true, message: '请选择角色' }],
+                  },
+                ]" placeholder="请选择" mode="multiple" option-label-prop="label">
+                <a-select-option value="" label="">请选择</a-select-option>
+                <a-select-option v-for="item in dataSourceOfRole" :key="item.id" :value="item.id" :label="item.name">{{item.name}}</a-select-option>
+              </a-select>
+              <a-button @click="this.getRoleData" size="small" style="margin-right:8px;">刷新</a-button>
+              <router-link :to="`/account/RoleList`" >角色管理</router-link>
             </a-form-item>
           </a-col>
         </a-row>
@@ -161,23 +192,90 @@
         </a-button>
       </div>
     </a-drawer>
+    <a-drawer
+        title="重置密码"
+        placement="right"
+        :closable="false"
+        :visible="isDrawerVisibleResetPassword"
+        @close="onDrawerCloseResetPassword"
+        width="640"
+    >
+      <a-form :form="form_reset_password" layout="vertical" hide-required-mark>
+        <a-row :gutter="16">
+          <a-col :span="12">
+            <a-form-item label="新密码">
+              <a-input
+                  v-decorator="[
+                  'password',
+                  {
+                    rules: [{ required: true, message: '请输入新密码',min:6 }],
+                  },
+                ]"
+                  placeholder="请输入新密码"
+                  min="6"
+              />
+            </a-form-item>
+          </a-col>
+          <a-col :span="12">
+            <a-form-item label="重复密码">
+              <a-input
+                  v-decorator="[
+                  'password2',
+                  {
+                    rules: [{ required: true, message: '请重复输入密码',min:6 }],
+                  },
+                ]"
+                  style="width: 100%"
+                  placeholder="请重复输入密码"
+              />
+            </a-form-item>
+          </a-col>
+        </a-row>
+
+      </a-form>
+      <div
+          :style="{
+          position: 'absolute',
+          right: 0,
+          bottom: 0,
+          width: '100%',
+          borderTop: '1px solid #e9e9e9',
+          padding: '10px 16px',
+          background: '#fff',
+          textAlign: 'right',
+          zIndex: 1,
+        }"
+      >
+        <a-button type="default" :style="{ marginRight: '8px' }" @click="handleReset">
+          清空
+        </a-button>
+        <a-button :style="{ marginRight: '8px' }" @click="onDrawerClose">
+          关闭
+        </a-button>
+        <a-button type="primary" @click="onResetPassword">
+          修改
+        </a-button>
+      </div>
+    </a-drawer>
   </div>
 </template>
 
 <script>
 import StandardTable from '@/components/table/StandardTable'
-import {index, add, edit, del, undel, get} from "@/services/Permission";
+import {index, add, edit, del, undel, get, reset_password} from "@/services/Account";
+import {index as roleIndex} from "@/services/Role";
+import {index as wholeSalerIndex} from "@/services/WholeSaler";
 
 const columns = [
   {
-    title: '名称',
+    title: '帐号',
     dataIndex: 'name',
     // scopedSlots: {customRender: 'name'}
   },
   {
-    title: '编码',
-    dataIndex: 'code',
-    // scopedSlots: {customRender: 'code'}
+    title: '分销商',
+    dataIndex: 'wholesaler_id',
+    scopedSlots: {customRender: 'wholesaler_id'}
   },
   {
     title: '状态',
@@ -191,39 +289,35 @@ const columns = [
     sorter: true
   },
   {
-    title: '排序',
-    dataIndex: 'sort',
-    needTotal: false,
-    width: 100,
-    scopedSlots: {customRender: 'sortSlot'}
-  },
-  {
     title: '操作',
     scopedSlots: {customRender: 'action'}
   }
 ]
 
 export default {
-  name: 'PermissionList',
+  name: 'Account',
   components: {StandardTable},
   data() {
     return {
+      wholesalerDataSource:[],
+      dataSourceOfRole:[],
       isEnterEditForm: false,
+      isEnterResetPasswordForm: false,
       currentEditId: 0,
-      currentParentId: 0,
       form: this.$form.createForm(this),
+      form_reset_password: this.$form.createForm(this),
       isDrawerVisible: false,
+      isDrawerVisibleResetPassword: false,
       createNew: false,
       advanced: true,
       columns: columns,
       dataSource: [],
       selectedRows: [],
       newName: '',
-      newCode: '',
+      newWholesalerId: '',
       name: '',
-      code: '',
+      wholesaler_id: '',
       is_delete: '0',
-      parent_id: '0',
       pagination: {
         current: 1,
         pageSize: 20,
@@ -232,14 +326,19 @@ export default {
     }
   },
   authorize: {
-    deleteRecord: 'delete'
+    // deleteRecord: 'delete'
+    onDel: {check:'delete',type:'role'},
+    onUnDel: {check:'delete',type:'role'}
   },
   mounted() {
-    this.getData()
+    this.getWholesalerData().then(()=>this.getRoleData()).then(()=>this.getData())
   },
   methods: {
     renderDeleteStatus(is_delete){
       return parseInt(is_delete)===1?'删除':'正常'
+    },
+    renderWholeSaler(wholesaler_id){
+      return this.wholesalerDataSource.filter(item=>(item.id)===(wholesaler_id))[0]?.name
     },
     handleReset() {
       this.form.resetFields();
@@ -248,14 +347,23 @@ export default {
       console.log('onDrawerClose')
       this.isDrawerVisible = false
     },
+    onDrawerCloseResetPassword() {
+      console.log('onDrawerCloseResetPassword')
+      this.isDrawerVisibleResetPassword = false
+    },
     afterDrawerVisibleChange(val) {
       console.log('afterDrawerVisibleChange', val)
     },
-    addNew(parentId) {
+    addNew() {
       this.isEnterEditForm = false
       this.isDrawerVisible = true
+      this.isDrawerVisibleResetPassword = false
       this.currentEditId = 0
-      this.currentParentId = parentId
+      // this.form.setFieldsValue({})
+      this.$nextTick(()=>{
+        this.handleReset()
+      })
+
     },
     onCreate(e) {
       e.preventDefault();
@@ -275,18 +383,23 @@ export default {
     },
     onBeforeEdit(id) {
       this.isDrawerVisible = true
+      this.isDrawerVisibleResetPassword = false
       this.isEnterEditForm = true
       this.currentEditId = id
 
       this.$nextTick(() => {
         get({id: id}).then((res) => {
           const detail = res?.data?.data
-          // this.form.getFieldDecorator('name',{initialValue:detail.name})
-          // this.form.getFieldDecorator('code',{initialValue:detail.code})
-          // this.form.getFieldDecorator('value',{initialValue:detail.value})
           this.form.setFieldsValue(detail)
         })
       })
+
+    },
+    onBeforeResetPassword(id){
+      this.isDrawerVisible = false
+      this.isDrawerVisibleResetPassword = true
+      this.isEnterResetPasswordForm = id
+
     },
     onEdit(e) {
       e.preventDefault();
@@ -300,6 +413,26 @@ export default {
               this.$message.success(message)
               this.getData()
               this.isDrawerVisible = false
+            } else {
+              this.$message.error(message)
+            }
+          })
+        }
+      });
+
+    },
+    onResetPassword(e) {
+      e.preventDefault();
+      this.form_reset_password.validateFields((err, values) => {
+        if (!err) {
+          reset_password({
+            id: this.isEnterResetPasswordForm, ...values
+          }).then(res => {
+            const {success, message} = res?.data ?? {}
+            if (success) {
+              this.$message.success(message)
+              this.getData()
+              this.isDrawerVisibleResetPassword = false
             } else {
               this.$message.error(message)
             }
@@ -373,14 +506,37 @@ export default {
       this.pagination.pageSize = pageSize
       this.getData()
     },
-    getData() {
-      index({
+    async getWholesalerData(){
+      await wholeSalerIndex({
+        is_delete: 0,
+        page: 1,
+        pageSize: 99999
+      }).then(res => {
+        console.log('getWholesalerData')
+        const {list} = res?.data?.data ?? {}
+        this.wholesalerDataSource = list
+      })
+    },
+    async getRoleData(){
+      await roleIndex({
+        is_delete: 0,
+        page: 1,
+        pageSize: 99999
+      }).then(res => {
+        console.log('getRoleData')
+        const {list} = res?.data?.data ?? {}
+        this.dataSourceOfRole = list
+      })
+    },
+    async getData() {
+      await index({
         name: this.name,
         code: this.code,
         is_delete: this.is_delete,
         page: this.pagination.current,
         pageSize: this.pagination.pageSize
       }).then(res => {
+        console.log('getData')
         const {list, page, pageSize, total} = res?.data?.data ?? {}
         this.dataSource = list
         this.pagination.current = page

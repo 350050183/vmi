@@ -6,7 +6,20 @@
           <div>搜索</div>
           <div>
             <a-row>
-              <a-col :md="8" :sm="24">
+              <a-col :md="6" :sm="24">
+                <a-form-item
+                    label="分类"
+                    :labelCol="{span: 5}"
+                    :wrapperCol="{span: 18, offset: 1}"
+                >
+                  <a-select placeholder="请选择" v-model="cate_id">
+                    <a-select-option value="">请选择</a-select-option>
+                    <a-select-option v-for="item in cateDataSource" :key="item.id" :value="item.id">{{item.name}}</a-select-option>
+                  </a-select>
+                  <router-link :to="`DictCateList`" >类型管理</router-link>
+                </a-form-item>
+              </a-col>
+              <a-col :md="6" :sm="24">
                 <a-form-item
                     label="名称"
                     :labelCol="{span: 5}"
@@ -15,7 +28,7 @@
                   <a-input placeholder="请输入" v-model="name"/>
                 </a-form-item>
               </a-col>
-              <a-col :md="8" :sm="24">
+              <a-col :md="6" :sm="24">
                 <a-form-item
                     label="编码"
                     :labelCol="{span: 5}"
@@ -24,7 +37,7 @@
                   <a-input placeholder="请输入" v-model="code"/>
                 </a-form-item>
               </a-col>
-              <a-col :md="8" :sm="24">
+              <a-col :md="6" :sm="24">
                 <a-form-item
                     label="状态"
                     :labelCol="{span: 5}"
@@ -84,6 +97,7 @@
               恢复
             </a>
           </div>
+          <div slot="cateName" slot-scope="{text, record}">{{renderCateId(record.cate_id)}}</div>
           <div slot="deleteRender" slot-scope="{text, record}"><span :style="record.is_delete==1?'color:red':''">{{renderDeleteStatus(record.is_delete)}}</span></div>
         </standard-table>
       </div>
@@ -98,6 +112,26 @@
         width="640"
     >
       <a-form :form="form" layout="vertical" hide-required-mark>
+        <a-row :gutter="16">
+          <a-col :span="12">
+            <a-form-item
+                label="分类"
+            >
+              <a-select
+                  v-decorator="[
+                  'cate_id',
+                  {
+                    rules: [{ required: true, message: '请选择类别' }],
+                  },
+                ]" placeholder="请选择">
+                <a-select-option value="">请选择</a-select-option>
+                <a-select-option v-for="item in cateDataSource" :key="item.id" :value="item.id">{{item.name}}</a-select-option>
+              </a-select>
+              <a-button @click="this.getCateData" size="small" style="margin-right:8px;">刷新</a-button>
+              <router-link :to="`DictCateList`" >类型管理</router-link>
+            </a-form-item>
+          </a-col>
+        </a-row>
         <a-row :gutter="16">
           <a-col :span="12">
             <a-form-item label="名称">
@@ -127,7 +161,6 @@
             </a-form-item>
           </a-col>
         </a-row>
-
       </a-form>
       <div
           :style="{
@@ -161,9 +194,16 @@
 
 <script>
 import StandardTable from '@/components/table/StandardTable'
-import {index, add, edit, del, undel, get} from "@/services/DictCate";
+import {index as cateIndex} from "@/services/DictCate";
+import {index, add, edit, del, undel, get} from "@/services/Dict";
+import {mapMutations} from "vuex";
 
 const columns = [
+  {
+    title: '分类',
+    dataIndex: 'cate_id',
+    scopedSlots: {customRender: 'cateName'}
+  },
   {
     title: '名称',
     dataIndex: 'name',
@@ -177,7 +217,6 @@ const columns = [
   {
     title: '状态',
     dataIndex: 'is_delete',
-    needTotal: false,
     scopedSlots: {customRender: 'deleteRender'}
   },
   {
@@ -192,10 +231,11 @@ const columns = [
 ]
 
 export default {
-  name: 'DictCateList',
+  name: 'Dict',
   components: {StandardTable},
   data() {
     return {
+      cateDataSource:[],
       isEnterEditForm: false,
       currentEditId: 0,
       form: this.$form.createForm(this),
@@ -207,6 +247,7 @@ export default {
       selectedRows: [],
       newName: '',
       newCode: '',
+      cate_id: '',
       name: '',
       code: '',
       is_delete: '0',
@@ -221,9 +262,13 @@ export default {
     deleteRecord: 'delete'
   },
   mounted() {
-    this.getData()
+    this.getCateData().then(()=>this.getData())
   },
   methods: {
+    ...mapMutations('dict',['setDict']),
+    renderCateId(cate_id){
+      return this.cateDataSource.filter(item=>item.id===cate_id)[0]?.name
+    },
     renderDeleteStatus(is_delete){
       return parseInt(is_delete)===1?'删除':'正常'
     },
@@ -343,9 +388,10 @@ export default {
       })
     },
     onSearchReset(){
+      this.cate_id=''
       this.name=''
       this.code=''
-      this.is_delete='0'
+      this.is_delete=''
       this.onSearch()
     },
     onSearch() {
@@ -359,8 +405,19 @@ export default {
       this.pagination.pageSize = pageSize
       this.getData()
     },
-    getData() {
-      index({
+    async getCateData(){
+      await cateIndex({
+        is_delete: 0,
+        page: 1,
+        pageSize: 99999
+      }).then(res => {
+        const {list} = res?.data?.data ?? {}
+        this.cateDataSource = list
+      })
+    },
+    async getData() {
+      await index({
+        cate_id: this.cate_id,
         name: this.name,
         code: this.code,
         is_delete: this.is_delete,
@@ -372,6 +429,8 @@ export default {
         this.pagination.current = page
         this.pagination.pageSize = pageSize
         this.pagination.total = total
+        //refresh localStorage
+        this.setDict(list)
       })
     },
     deleteRecord(key) {
