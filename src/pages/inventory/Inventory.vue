@@ -8,20 +8,20 @@
             <a-row>
               <a-col :md="8" :sm="24">
                 <a-form-item
-                    label="名称"
+                    label="产品名称"
                     :labelCol="{span: 5}"
                     :wrapperCol="{span: 18, offset: 1}"
                 >
-                  <a-input placeholder="请输入" v-model="name"/>
+                  <a-input placeholder="请输入" v-model="product_name"/>
                 </a-form-item>
               </a-col>
               <a-col :md="8" :sm="24">
                 <a-form-item
-                    label="编码"
+                    label="SKU名称"
                     :labelCol="{span: 5}"
                     :wrapperCol="{span: 18, offset: 1}"
                 >
-                  <a-input placeholder="请输入" v-model="code"/>
+                  <a-input placeholder="请输入" v-model="sku_name"/>
                 </a-form-item>
               </a-col>
               <a-col :md="8" :sm="24">
@@ -100,7 +100,7 @@
       <a-form :form="form" layout="vertical" hide-required-mark>
         <a-row :gutter="16">
           <a-col :span="24">
-            <a-form-item label="产品名称">
+            <a-form-item label="产品名称" v-if="!isEnterEditForm">
               <a-select
                   v-decorator="[
                   'product_id',
@@ -117,7 +117,7 @@
         </a-row>
         <a-row :gutter="16">
           <a-col :span="12">
-            <a-form-item label="产品SKU">
+            <a-form-item label="产品SKU" v-if="!isEnterEditForm">
               <a-select
                   v-decorator="[
                   'sku_id',
@@ -150,7 +150,7 @@
         </a-row>
         <a-row :gutter="16">
           <a-col :span="12">
-            <a-form-item label="库存变化量">
+            <a-form-item label="库存变化量" extra="请输入库存变化量，扣减输入负值">
               <a-input
                   v-decorator="[
                   'stock',
@@ -221,17 +221,21 @@ import {mapGetters} from "vuex";
 const columns = [
   {
     title: '产品',
-    dataIndex: 'product_id',
+    dataIndex: 'product_name',
     // scopedSlots: {customRender: 'name'}
   },
   {
     title: 'SKU',
-    dataIndex: 'sku_id',
+    dataIndex: 'sku_name',
     // scopedSlots: {customRender: 'code'}
   },
   {
-    title: '库存',
+    title: '当前库存',
     dataIndex: 'stock',
+  },
+  {
+    title: '最低库存',
+    dataIndex: 'least_stock',
   },
   {
     title: '状态',
@@ -268,8 +272,8 @@ export default {
       selectedRows: [],
       newName: '',
       newCode: '',
-      name: '',
-      code: '',
+      product_name: '',
+      sku_name: '',
       is_delete: '0',
       pagination: {
         current: 1,
@@ -333,9 +337,6 @@ export default {
       this.$nextTick(() => {
         get({id: id}).then((res) => {
           const detail = res?.data?.data
-          // this.form.getFieldDecorator('name',{initialValue:detail.name})
-          // this.form.getFieldDecorator('code',{initialValue:detail.code})
-          // this.form.getFieldDecorator('value',{initialValue:detail.value})
           this.form.setFieldsValue(detail)
         })
       })
@@ -428,17 +429,22 @@ export default {
     },
     async getData() {
       index({
-        name: this.name,
-        code: this.code,
+        product_name: this.product_name,
+        sku_name: this.sku_name,
         is_delete: this.is_delete,
         page: this.pagination.current,
         pageSize: this.pagination.pageSize
       }).then(res => {
-        const {list, page, pageSize, total} = res?.data?.data ?? {}
-        this.dataSource = list
-        this.pagination.current = page
-        this.pagination.pageSize = pageSize
-        this.pagination.total = total
+        const {success,message,code} = res?.data ?? {}
+        if(!success){
+          this.$message.warning(code+': '+message)
+        }else {
+          const {list, page, pageSize, total} = res?.data?.data ?? {}
+          this.dataSource = list
+          this.pagination.current = page
+          this.pagination.pageSize = pageSize
+          this.pagination.total = total
+        }
       })
     },
     async getProductData() {
@@ -446,14 +452,18 @@ export default {
         is_delete: 0,
         pageSize: 99999
       }).then(res => {
-        const {list} = res?.data?.data ?? {}
-        this.productDataSource = list
+            const {success,message,code} = res?.data ?? {}
+            if(!success){
+              this.$message.warning(code+': '+message)
+            }else {
+              const {list} = res?.data?.data ?? {}
+              this.productDataSource = list
+            }
       })
     },
     async getSkuData() {
       // this.$forceUpdate()
       this.$nextTick(()=>{
-
         const product_id = this.form.getFieldValue('product_id')
         if(product_id==undefined || !product_id){
           console.log('[getSkuData] product is undefined')
@@ -466,8 +476,13 @@ export default {
           is_delete: 0,
           pageSize: 99999
         }).then(res => {
-          const {list} = res?.data?.data ?? {}
-          this.skuDataSource = list
+          const {success,message,code} = res?.data ?? {}
+          if(!success){
+            this.$message.warning(code+': '+message)
+          }else {
+            const {list} = res?.data?.data ?? {}
+            this.skuDataSource = list
+          }
         })
       })
     },

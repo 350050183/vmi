@@ -8,20 +8,20 @@
             <a-row>
               <a-col :md="8" :sm="24">
                 <a-form-item
-                    label="名称"
+                    label="产品名称"
                     :labelCol="{span: 5}"
                     :wrapperCol="{span: 18, offset: 1}"
                 >
-                  <a-input placeholder="请输入" v-model="name"/>
+                  <a-input placeholder="请输入" v-model="product_name"/>
                 </a-form-item>
               </a-col>
               <a-col :md="8" :sm="24">
                 <a-form-item
-                    label="编码"
+                    label="SKU名称"
                     :labelCol="{span: 5}"
                     :wrapperCol="{span: 18, offset: 1}"
                 >
-                  <a-input placeholder="请输入" v-model="code"/>
+                  <a-input placeholder="请输入" v-model="sku_name"/>
                 </a-form-item>
               </a-col>
               <a-col :md="8" :sm="24">
@@ -47,20 +47,6 @@
         </a-form>
       </div>
       <div>
-        <a-space class="operator">
-          <a-button @click="addNew" type="primary">新建</a-button>
-          <a-dropdown>
-            <a-menu @click="handleMenuClick" slot="overlay">
-              <a-menu-item key="delete">删除</a-menu-item>
-              <a-menu-item key="undelete">恢复</a-menu-item>
-            </a-menu>
-            <a-button>
-              批量操作
-              <a-icon type="down"/>
-            </a-button>
-          </a-dropdown>
-        </a-space>
-
         <standard-table
             :columns="columns"
             :dataSource="dataSource"
@@ -70,22 +56,13 @@
             :pagination="{...pagination, onChange: onPageChange}"
             @selectedRowChange="onSelectChange"
         >
-          <div slot="action" slot-scope="{text, record}">
-            <router-link :to="'WholeSalerShop?wholesaler_id='+record.id"><a-icon type="edit"/>店铺管理</router-link>
-            <a style="margin-right: 8px;margin-left: 8px" @click="onBeforeEdit(record.id)">
-              <a-icon type="edit"/>
-              修改
-            </a>
-            <a @click="onDel(record.id)" v-auth="`delete`" v-if="record.is_delete==0">
-              <a-icon type="delete"/>
-              删除
-            </a>
-            <a @click="onUnDel(record.id)" v-auth="`delete`" v-if="record.is_delete==1">
-              <a-icon type="delete"/>
-              恢复
-            </a>
+          <div slot="action">
           </div>
-          <div slot="deleteRender" slot-scope="{text, record}"><span :style="record.is_delete==1?'color:red':''">{{renderDeleteStatus(record.is_delete)}}</span></div>
+          <div slot="deleteRender" slot-scope="{text, record}"><span
+              :style="record.is_delete==1?'color:red':''">{{ renderDeleteStatus(record.is_delete) }}</span></div>
+
+          <div slot="reasonRender" slot-scope="{text, record}">{{ reasonRender(record.reason_id) }}</div>
+          <div slot="accountRender" slot-scope="{text, record}">{{ accountRender(record.account_id) }}</div>
         </standard-table>
       </div>
     </a-card>
@@ -227,30 +204,43 @@
 
 <script>
 import StandardTable from '@/components/table/StandardTable'
-import {index, add, edit, del, undel, get} from "@/services/WholeSaler";
+import {index, add, edit, del, undel, get} from "@/services/InventoryLog";
+import {index as accountIndex} from "@/services/Account";
 import {mapGetters} from "vuex";
-import WholeSalerShop from "@/pages/system/WholeSalerShop.vue";
 
 const columns = [
   {
     title: '名称',
-    dataIndex: 'name',
-    // scopedSlots: {customRender: 'name'}
+    dataIndex: 'product_name',
+    // scopedSlots: {customRender: 'productRender'}
   },
   {
-    title: '编码',
-    dataIndex: 'code',
-    // scopedSlots: {customRender: 'code'}
+    title: 'SKU',
+    dataIndex: 'sku_name',
+    // scopedSlots: {customRender: 'skuRender'}
   },
   {
-    title: '联系人',
-    dataIndex: 'contact',
-    // scopedSlots: {customRender: 'code'}
+    title: '变更数量',
+    dataIndex: 'stock',
+    scopedSlots: {customRender: 'stockRender'}
   },
   {
-    title: '电话',
-    dataIndex: 'phone',
-    // scopedSlots: {customRender: 'code'}
+    title: '剩余库存',
+    dataIndex: 'left_stock',
+  },
+  {
+    title: '变更原因',
+    dataIndex: 'reason_id',
+    scopedSlots: {customRender: 'reasonRender'}
+  },
+  {
+    title: '备注',
+    dataIndex: 'memo',
+  },
+  {
+    title: '操作人',
+    dataIndex: 'account_id',
+    scopedSlots: {customRender: 'accountRender'}
   },
   {
     title: '状态',
@@ -283,10 +273,11 @@ export default {
       columns: columns,
       dataSource: [],
       selectedRows: [],
+      accountDataSource: [],
       newName: '',
       newCode: '',
-      name: '',
-      code: '',
+      product_name: '',
+      sku_name: '',
       is_delete: '0',
       pagination: {
         current: 1,
@@ -299,15 +290,23 @@ export default {
     deleteRecord: 'delete'
   },
   mounted() {
-    this.getData()
+    this.getAccountData().then(()=>this.getData())
+  },
+  computed: {
+    reasonDataSource: function () {
+      return this.dictByCateCode()('stock_change_type')
+    },
   },
   methods: {
-    WholeSalerShop() {
-      return WholeSalerShop
+    ...mapGetters('dict', ['dictByCateCode']),
+    renderDeleteStatus(is_delete) {
+      return parseInt(is_delete) === 1 ? '删除' : '正常'
     },
-    ...mapGetters('dict',['dictByCateCode']),
-    renderDeleteStatus(is_delete){
-      return parseInt(is_delete)===1?'删除':'正常'
+    reasonRender(reason_id) {
+      return this.reasonDataSource.filter(item => (item.id) === (reason_id))[0]?.name
+    },
+    accountRender(account_id) {
+      return this.accountDataSource.filter(item => (item.id) === (account_id))[0]?.name
     },
     handleReset() {
       this.form.resetFields();
@@ -424,10 +423,10 @@ export default {
         }
       })
     },
-    onSearchReset(){
-      this.name=''
-      this.code=''
-      this.is_delete='0'
+    onSearchReset() {
+      this.name = ''
+      this.code = ''
+      this.is_delete = '0'
       this.onSearch()
     },
     onSearch() {
@@ -441,19 +440,38 @@ export default {
       this.pagination.pageSize = pageSize
       this.getData()
     },
-    getData() {
+    async getData() {
       index({
-        name: this.name,
-        code: this.code,
+        product_name: this.product_name,
+        sku_name: this.sku_name,
         is_delete: this.is_delete,
         page: this.pagination.current,
         pageSize: this.pagination.pageSize
       }).then(res => {
-        const {list, page, pageSize, total} = res?.data?.data ?? {}
-        this.dataSource = list
-        this.pagination.current = page
-        this.pagination.pageSize = pageSize
-        this.pagination.total = total
+        const {success, message, code} = res?.data ?? {}
+        if (!success) {
+          this.$message.warning(code + ': ' + message)
+        } else {
+          const {list, page, pageSize, total} = res?.data?.data ?? {}
+          this.dataSource = list
+          this.pagination.current = page
+          this.pagination.pageSize = pageSize
+          this.pagination.total = total
+        }
+      })
+    },
+    async getAccountData() {
+      accountIndex({
+        is_delete: this.is_delete,
+        pageSize: 99999
+      }).then(res => {
+        const {success, message, code} = res?.data ?? {}
+        if (!success) {
+          this.$message.warning(code + ': ' + message)
+        } else {
+          const {list} = res?.data?.data ?? {}
+          this.accountDataSource = list
+        }
       })
     },
     deleteRecord(key) {

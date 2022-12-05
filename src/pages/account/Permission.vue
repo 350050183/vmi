@@ -72,7 +72,7 @@
             :defaultExpandAllRows="defaultExpandAllRows"
         >
           <div slot="sortSlot" slot-scope="{text, record}">
-            <editable-cell :text="record.sort" @change="onCellChange(record.id, 'sort', $event)" />
+            <editable-cell :text="record.sort" @change="onCellChange(record.id, 'sort', $event)"/>
           </div>
           <div slot="action" slot-scope="{text, record}">
             <a style="margin-right: 8px" @click="addNew(record)">
@@ -92,7 +92,8 @@
               恢复
             </a>
           </div>
-          <div slot="deleteRender" slot-scope="{text, record}"><span :style="record.is_delete==1?'color:red':''">{{renderDeleteStatus(record.is_delete)}}</span></div>
+          <div slot="deleteRender" slot-scope="{text, record}"><span
+              :style="record.is_delete==1?'color:red':''">{{ renderDeleteStatus(record.is_delete) }}</span></div>
 
         </standard-table>
       </div>
@@ -110,23 +111,23 @@
         <a-row :gutter="16">
           <a-col :span="12">
             <a-form-item label="父权限">
-            <a-tree-select
-                v-decorator="[
+              <a-tree-select
+                  v-decorator="[
                   'parent_id',
                   {
                     rules: [{ required: true, message: '请选择父权限' }],
                   },
                 ]"
-                style="width: 100%"
-                :dropdown-style="{ maxHeight: '400px', overflow: 'auto' }"
-                :tree-data="treeDataOfPermission"
-                placeholder="请选择父权限"
-                tree-default-expand-all
-            >
+                  style="width: 100%"
+                  :dropdown-style="{ maxHeight: '400px', overflow: 'auto' }"
+                  :tree-data="treeDataOfPermission"
+                  placeholder="请选择父权限"
+                  tree-default-expand-all
+              >
     <span v-if="key === '0-0-1'" slot="title" slot-scope="{ key, value }" style="color: #08c">
       Child Node1 {{ value }}
     </span>
-            </a-tree-select>
+              </a-tree-select>
             </a-form-item>
           </a-col>
           <a-col :span="12">
@@ -263,7 +264,7 @@ const columns = [
   {
     title: '显示',
     dataIndex: 'is_show',
-    customRender:(is_show)=>(is_show)==1?'显示':'隐藏'
+    customRender: (is_show) => (is_show) == 1 ? '显示' : '隐藏'
   },
   {
     title: '操作',
@@ -276,8 +277,8 @@ export default {
   components: {EditableCell, StandardTable},
   data() {
     return {
-      defaultExpandAllRows:true,
-      treeDataOfPermission:[],
+      defaultExpandAllRows: true,
+      treeDataOfPermission: [],
       isEnterEditForm: false,
       currentEditId: 0,
       currentParentId: 0,
@@ -305,13 +306,12 @@ export default {
     deleteRecord: 'delete'
   },
   mounted() {
-    this.getData()
-    this.getTreeDataOfPermission()
+    this.getTreeDataOfPermission().then(()=>this.getData())
   },
   methods: {
     onCellChange(key, dataIndex, value) {
       //call api
-      editSort({id:key,sort:value}).then(res => {
+      editSort({id: key, sort: value}).then(res => {
         const {success, message} = res?.data ?? {}
         if (success) {
           this.$message.success(message)
@@ -322,8 +322,8 @@ export default {
         }
       })
     },
-    renderDeleteStatus(is_delete){
-      return parseInt(is_delete)===1?'删除':'正常'
+    renderDeleteStatus(is_delete) {
+      return parseInt(is_delete) === 1 ? '删除' : '正常'
     },
     handleReset() {
       this.form.resetFields();
@@ -340,7 +340,7 @@ export default {
       this.isDrawerVisible = true
       this.currentEditId = 0
       this.currentParentId = data.parent_id
-      this.$nextTick(()=>{
+      this.$nextTick(() => {
         this.handleReset()
       })
       this.$nextTick(() => {
@@ -450,10 +450,10 @@ export default {
         }
       })
     },
-    onSearchReset(){
-      this.name=''
-      this.code=''
-      this.is_delete='0'
+    onSearchReset() {
+      this.name = ''
+      this.code = ''
+      this.is_delete = '0'
       this.onSearch()
     },
     onSearch() {
@@ -467,7 +467,7 @@ export default {
       this.pagination.pageSize = pageSize
       this.getData()
     },
-    getData() {
+    async getData() {
       index({
         name: this.name,
         code: this.code,
@@ -475,21 +475,31 @@ export default {
         page: 1,
         pageSize: 99999
       }).then(res => {
-        const {list, page, pageSize, total} = res?.data?.data ?? {}
-        this.dataSource = list
-        this.pagination.current = page
-        this.pagination.pageSize = pageSize
-        this.pagination.total = total
-        this.defaultExpandAllRows = true
+        const {success, message, code} = res?.data ?? {}
+        if (!success) {
+          this.$message.warning(code + ': ' + message)
+        } else {
+          const {list, page, pageSize, total} = res?.data?.data ?? {}
+          this.dataSource = list
+          this.pagination.current = page
+          this.pagination.pageSize = pageSize
+          this.pagination.total = total
+          this.defaultExpandAllRows = true
+        }
       })
     },
-    getTreeDataOfPermission() {
+    async getTreeDataOfPermission() {
       tree({
         page: 1,
         pageSize: 99999
       }).then(res => {
-        const {list} = res?.data?.data ?? {}
-        this.treeDataOfPermission = list
+        const {success, message, code} = res?.data ?? {}
+        if (!success) {
+          this.$message.warning(code + ': ' + message)
+        } else {
+          const {list} = res?.data?.data ?? {}
+          this.treeDataOfPermission = list
+        }
       })
     },
     deleteRecord(key) {

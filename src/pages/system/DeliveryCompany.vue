@@ -84,7 +84,8 @@
               恢复
             </a>
           </div>
-          <div slot="deleteRender" slot-scope="{text, record}"><span :style="record.is_delete==1?'color:red':''">{{renderDeleteStatus(record.is_delete)}}</span></div>
+          <div slot="deleteRender" slot-scope="{text, record}"><span
+              :style="record.is_delete==1?'color:red':''">{{ renderDeleteStatus(record.is_delete) }}</span></div>
         </standard-table>
       </div>
     </a-card>
@@ -178,7 +179,7 @@
                 label="备注"
             >
               <a-textarea :auto-size="{ minRows: 3, maxRows: 5 }"
-                  v-decorator="[
+                          v-decorator="[
                   'memo',
                   {
                     rules: [{ required: true, message: '请填写备注' }],
@@ -268,7 +269,7 @@ export default {
   components: {StandardTable},
   data() {
     return {
-      onlinePlatformDataSource:[],
+      onlinePlatformDataSource: [],
       isEnterEditForm: false,
       currentEditId: 0,
       form: this.$form.createForm(this),
@@ -294,12 +295,11 @@ export default {
     deleteRecord: 'delete'
   },
   mounted() {
-    this.getOnlinePlatformData()
-    this.getData()
+    this.getOnlinePlatformData().then(() => this.getData())
   },
   methods: {
-    renderDeleteStatus(is_delete){
-      return parseInt(is_delete)===1?'删除':'正常'
+    renderDeleteStatus(is_delete) {
+      return parseInt(is_delete) === 1 ? '删除' : '正常'
     },
     handleReset() {
       this.form.resetFields();
@@ -416,10 +416,10 @@ export default {
         }
       })
     },
-    onSearchReset(){
-      this.name=''
-      this.code=''
-      this.is_delete='0'
+    onSearchReset() {
+      this.name = ''
+      this.code = ''
+      this.is_delete = '0'
       this.onSearch()
     },
     onSearch() {
@@ -440,8 +440,13 @@ export default {
         page: 1,
         pageSize: 99999
       }).then(res => {
-        const {list} = res?.data?.data ?? {}
-        this.onlinePlatformDataSource = list
+        const {success, message, code} = res?.data ?? {}
+        if (!success) {
+          this.$message.warning(code + ': ' + message)
+        } else {
+          const {list} = res?.data?.data ?? {}
+          this.onlinePlatformDataSource = list
+        }
       })
     },
     getData() {
@@ -452,11 +457,16 @@ export default {
         page: this.pagination.current,
         pageSize: this.pagination.pageSize
       }).then(res => {
-        const {list, page, pageSize, total} = res?.data?.data ?? {}
-        this.dataSource = list
-        this.pagination.current = page
-        this.pagination.pageSize = pageSize
-        this.pagination.total = total
+        const {success, message, code} = res?.data ?? {}
+        if (!success) {
+          this.$message.warning(code + ': ' + message)
+        } else {
+          const {list, page, pageSize, total} = res?.data?.data ?? {}
+          this.dataSource = list
+          this.pagination.current = page
+          this.pagination.pageSize = pageSize
+          this.pagination.total = total
+        }
       })
     },
     deleteRecord(key) {

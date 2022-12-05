@@ -63,7 +63,10 @@
             @selectedRowChange="onSelectChange"
         >
           <div slot="action" slot-scope="{text, record}">
-            <router-link :to="'/product/SkuList?id'+record.id"> <a-icon type="edit"/>SKU管理</router-link>
+            <router-link :to="'/product/SkuList?id'+record.id">
+              <a-icon type="edit"/>
+              SKU管理
+            </router-link>
             <a style="margin-right: 8px;margin-left: 8px" @click="onBeforeEdit(record.id)">
               <a-icon type="edit"/>
               修改
@@ -77,8 +80,9 @@
               恢复
             </a>
           </div>
-          <div slot="deleteRender" slot-scope="{text, record}"><span :style="record.is_delete==1?'color:red':''">{{renderDeleteStatus(record.is_delete)}}</span></div>
-          <div slot="cate_id" slot-scope="{text, record}">{{renderCateId(record.cate_id)}}</div>
+          <div slot="deleteRender" slot-scope="{text, record}"><span
+              :style="record.is_delete==1?'color:red':''">{{ renderDeleteStatus(record.is_delete) }}</span></div>
+          <div slot="cate_id" slot-scope="{text, record}">{{ renderCateId(record.cate_id) }}</div>
         </standard-table>
       </div>
     </a-card>
@@ -133,7 +137,8 @@
                   },
                 ]" placeholder="请选择">
                 <a-select-option value="">请选择</a-select-option>
-                <a-select-option v-for="item in cateDataSource" :key="item.id" :value="item.id">{{item.name}}</a-select-option>
+                <a-select-option v-for="item in cateDataSource" :key="item.id" :value="item.id">{{ item.name }}
+                </a-select-option>
               </a-select>
             </a-form-item>
           </a-col>
@@ -170,7 +175,7 @@
               >
                 <img v-if="imageUrl" :src="imageUrl" alt="avatar" width="128" height="128"/>
                 <div v-else>
-                  <a-icon :type="loading ? 'loading' : 'plus'" />
+                  <a-icon :type="loading ? 'loading' : 'plus'"/>
                   <div class="ant-upload-text">
                     Upload
                   </div>
@@ -224,7 +229,12 @@ const columns = [
     // scopedSlots: {customRender: 'name'}
   },
   {
-    title: '登录密码',
+    title: '编码',
+    dataIndex: 'code',
+    // scopedSlots: {customRender: 'name'}
+  },
+  {
+    title: '类别',
     dataIndex: 'cate_id',
     scopedSlots: {customRender: 'cate_id'}
   },
@@ -256,11 +266,11 @@ export default {
   components: {StandardTable},
   data() {
     return {
-      uploadedFile:'',
-      uploadUrl:FILEMANAGER+'/upload',
+      uploadedFile: '',
+      uploadUrl: FILEMANAGER + '/upload',
       loading: false,
       imageUrl: '',
-      cateDataSource:[],
+      cateDataSource: [],
       isEnterEditForm: false,
       currentEditId: 0,
       form: this.$form.createForm(this),
@@ -284,14 +294,14 @@ export default {
   },
   authorize: {
     // deleteRecord: 'delete'
-    onDel: {check:'delete',type:'role'},
-    onUnDel: {check:'delete',type:'role'}
+    onDel: {check: 'delete', type: 'role'},
+    onUnDel: {check: 'delete', type: 'role'}
   },
   mounted() {
-    this.cateCateData().then(()=>this.getData())
+    this.cateCateData().then(() => this.getData())
   },
   methods: {
-    ...mapGetters('dict',['dictByCateCode']),
+    ...mapGetters('dict', ['dictByCateCode']),
 
     handleChange(info) {
       if (info.file.status === 'uploading') {
@@ -303,8 +313,8 @@ export default {
         getBase64(info.file.originFileObj, imageUrl => {
           this.imageUrl = imageUrl;
           this.loading = false;
-          if(info.file.response.status=='done'){
-            this.uploadedFile=info.file.response.relative_path
+          if (info.file.response.status == 'done') {
+            this.uploadedFile = info.file.response.relative_path
           }
         });
       }
@@ -322,11 +332,11 @@ export default {
       return isJpgOrPng && isLt2M;
     },
 
-    renderDeleteStatus(is_delete){
-      return parseInt(is_delete)===1?'删除':'正常'
+    renderDeleteStatus(is_delete) {
+      return parseInt(is_delete) === 1 ? '删除' : '正常'
     },
-    renderCateId(cate_id){
-      return this.cateDataSource.filter(item=>(item.id)===(cate_id))[0]?.name
+    renderCateId(cate_id) {
+      return this.cateDataSource.filter(item => (item.id) === (cate_id))[0]?.name
     },
     handleReset() {
       this.form.resetFields();
@@ -339,7 +349,7 @@ export default {
       this.isEnterEditForm = false
       this.isDrawerVisible = true
       this.currentEditId = 0
-      this.$nextTick(()=>{
+      this.$nextTick(() => {
         this.handleReset()
       })
 
@@ -348,7 +358,7 @@ export default {
       e.preventDefault();
       this.form.validateFields((err, values) => {
         if (!err) {
-          add({cover_img:this.uploadedFile,...values}).then(res => {
+          add({cover_img: this.uploadedFile, ...values}).then(res => {
             const {success, message} = res?.data ?? {}
             if (success) {
               this.$message.success(message)
@@ -369,8 +379,8 @@ export default {
         get({id: id}).then((res) => {
           const detail = res?.data?.data
           this.form.setFieldsValue(detail)
-          if(detail.cover_img && detail.cover_img.length>0){
-            this.imageUrl = process.env.VUE_APP_FILE_BASE_URL+detail.cover_img
+          if (detail.cover_img && detail.cover_img.length > 0) {
+            this.imageUrl = process.env.VUE_APP_FILE_BASE_URL + detail.cover_img
           }
         })
       })
@@ -381,7 +391,7 @@ export default {
       this.form.validateFields((err, values) => {
         if (!err) {
           edit({
-            id: this.currentEditId, cover_img:this.uploadedFile,...values
+            id: this.currentEditId, cover_img: this.uploadedFile, ...values
           }).then(res => {
             const {success, message} = res?.data ?? {}
             if (success) {
@@ -444,10 +454,10 @@ export default {
         }
       })
     },
-    onSearchReset(){
-      this.name=''
-      this.code=''
-      this.is_delete='0'
+    onSearchReset() {
+      this.name = ''
+      this.code = ''
+      this.is_delete = '0'
       this.onSearch()
     },
     onSearch() {
@@ -461,8 +471,8 @@ export default {
       this.pagination.pageSize = pageSize
       this.getData()
     },
-    async cateCateData(){
-      this.cateDataSource=this.dictByCateCode()('product_cate')
+    async cateCateData() {
+      this.cateDataSource = this.dictByCateCode()('product_cate')
     },
     async getData() {
       await index({
@@ -472,11 +482,16 @@ export default {
         page: this.pagination.current,
         pageSize: this.pagination.pageSize
       }).then(res => {
-        const {list, page, pageSize, total} = res?.data?.data ?? {}
-        this.dataSource = list
-        this.pagination.current = page
-        this.pagination.pageSize = pageSize
-        this.pagination.total = total
+        const {success, message, code} = res?.data ?? {}
+        if (!success) {
+          this.$message.warning(code + ': ' + message)
+        } else {
+          const {list, page, pageSize, total} = res?.data?.data ?? {}
+          this.dataSource = list
+          this.pagination.current = page
+          this.pagination.pageSize = pageSize
+          this.pagination.total = total
+        }
       })
     },
     deleteRecord(key) {
@@ -536,6 +551,7 @@ export default {
   width: 128px;
   height: 128px;
 }
+
 .ant-upload-select-picture-card i {
   font-size: 32px;
   color: #999;

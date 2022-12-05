@@ -84,9 +84,12 @@
               恢复
             </a>
           </div>
-          <div slot="deleteRender" slot-scope="{text, record}"><span :style="record.is_delete==1?'color:red':''">{{renderDeleteStatus(record.is_delete)}}</span></div>
-          <div slot="wholeSalerRender" slot-scope="{text, record}">{{wholeSalerRender(record.wholesaler_id)}}</div>
-          <div slot="onlinePlatformRender" slot-scope="{text, record}">{{onlinePlatformRender(record.online_platform_id)}}</div>
+          <div slot="deleteRender" slot-scope="{text, record}"><span
+              :style="record.is_delete==1?'color:red':''">{{ renderDeleteStatus(record.is_delete) }}</span></div>
+          <div slot="wholeSalerRender" slot-scope="{text, record}">{{ wholeSalerRender(record.wholesaler_id) }}</div>
+          <div slot="onlinePlatformRender" slot-scope="{text, record}">
+            {{ onlinePlatformRender(record.online_platform_id) }}
+          </div>
         </standard-table>
       </div>
     </a-card>
@@ -114,7 +117,8 @@
                   },
                 ]" placeholder="请选择">
                 <a-select-option value="">请选择</a-select-option>
-                <a-select-option v-for="item in wholeSalerDataSource" :key="item.id" :value="item.id">{{item.name}}</a-select-option>
+                <a-select-option v-for="item in wholeSalerDataSource" :key="item.id" :value="item.id">{{ item.name }}
+                </a-select-option>
               </a-select>
               <a-button @click="this.getWholeSalerData" size="small">刷新</a-button>
             </a-form-item>
@@ -191,9 +195,10 @@
                   },
                 ]" placeholder="请选择">
                 <a-select-option value="">请选择</a-select-option>
-                <a-select-option v-for="item in platformDataSource" :key="item.id" :value="item.id">{{item.name}}</a-select-option>
+                <a-select-option v-for="item in platformDataSource" :key="item.id" :value="item.id">{{ item.name }}
+                </a-select-option>
               </a-select>
-              <router-link :to="`DictList`" >电商平台管理</router-link>
+              <router-link :to="`DictList`">电商平台管理</router-link>
             </a-form-item>
           </a-col>
         </a-row>
@@ -203,7 +208,7 @@
                 label="备注"
             >
               <a-textarea :auto-size="{ minRows: 3, maxRows: 5 }"
-                  v-decorator="[
+                          v-decorator="[
                   'memo',
                   {
                     rules: [{ required: true, message: '请填写备注' }],
@@ -306,7 +311,7 @@ export default {
   components: {StandardTable},
   data() {
     return {
-      wholeSalerDataSource:[],
+      wholeSalerDataSource: [],
       isEnterEditForm: false,
       currentEditId: 0,
       form: this.$form.createForm(this),
@@ -332,23 +337,23 @@ export default {
     deleteRecord: 'delete'
   },
   mounted() {
-    this.getWholeSalerData().then(()=>this.getData())
+    this.getWholeSalerData().then(() => this.getData())
   },
-  computed:{
-    platformDataSource:function(){
+  computed: {
+    platformDataSource: function () {
       return this.dictByCateCode()('online_platform')
     },
   },
   methods: {
-    ...mapGetters('dict',['dictByCateCode']),
-    renderDeleteStatus(is_delete){
-      return parseInt(is_delete)===1?'删除':'正常'
+    ...mapGetters('dict', ['dictByCateCode']),
+    renderDeleteStatus(is_delete) {
+      return parseInt(is_delete) === 1 ? '删除' : '正常'
     },
-    wholeSalerRender(wholesaler_id){
-      return this.wholeSalerDataSource.find((item)=>item.id==wholesaler_id)?.name
+    wholeSalerRender(wholesaler_id) {
+      return this.wholeSalerDataSource.find((item) => item.id == wholesaler_id)?.name
     },
-    onlinePlatformRender(online_platform_id){
-      return this.platformDataSource.find((item)=>item.id==online_platform_id)?.name
+    onlinePlatformRender(online_platform_id) {
+      return this.platformDataSource.find((item) => item.id == online_platform_id)?.name
     },
     handleReset() {
       this.form.resetFields();
@@ -465,10 +470,10 @@ export default {
         }
       })
     },
-    onSearchReset(){
-      this.name=''
-      this.code=''
-      this.is_delete='0'
+    onSearchReset() {
+      this.name = ''
+      this.code = ''
+      this.is_delete = '0'
       this.onSearch()
     },
     onSearch() {
@@ -482,10 +487,15 @@ export default {
       this.pagination.pageSize = pageSize
       this.getData()
     },
-    async getWholeSalerData(){
-      wholeSalerIndex({pageSize:99999}).then(res => {
-        const {list} = res?.data?.data ?? {}
-        this.wholeSalerDataSource = list
+    async getWholeSalerData() {
+      wholeSalerIndex({pageSize: 99999}).then(res => {
+        const {success, message, code} = res?.data ?? {}
+        if (!success) {
+          this.$message.warning(code + ': ' + message)
+        } else {
+          const {list} = res?.data?.data ?? {}
+          this.wholeSalerDataSource = list
+        }
       })
     },
     async getData() {
@@ -496,11 +506,16 @@ export default {
         page: this.pagination.current,
         pageSize: this.pagination.pageSize
       }).then(res => {
-        const {list, page, pageSize, total} = res?.data?.data ?? {}
-        this.dataSource = list
-        this.pagination.current = page
-        this.pagination.pageSize = pageSize
-        this.pagination.total = total
+        const {success, message, code} = res?.data ?? {}
+        if (!success) {
+          this.$message.warning(code + ': ' + message)
+        } else {
+          const {list, page, pageSize, total} = res?.data?.data ?? {}
+          this.dataSource = list
+          this.pagination.current = page
+          this.pagination.pageSize = pageSize
+          this.pagination.total = total
+        }
       })
     },
     deleteRecord(key) {

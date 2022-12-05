@@ -8,7 +8,7 @@
             <a-row>
               <a-col :md="6" :sm="24">
                 <a-form-item
-                    label="名称"
+                    label="SKU名称"
                     :labelCol="{span: 5}"
                     :wrapperCol="{span: 18, offset: 1}"
                 >
@@ -94,10 +94,11 @@
               恢复
             </a>
           </div>
-          <div slot="deleteRender" slot-scope="{text, record}"><span :style="record.is_delete==1?'color:red':''">{{renderDeleteStatus(record.is_delete)}}</span></div>
-          <div slot="specRender" slot-scope="{text, record}">{{specRender(record.spec_id)}}</div>
-          <div slot="materialRender" slot-scope="{text, record}">{{materialRender(record.material_id)}}</div>
-          <div slot="colorRender" slot-scope="{text, record}">{{colorRender(record.color_id)}}</div>
+          <div slot="deleteRender" slot-scope="{text, record}"><span
+              :style="record.is_delete==1?'color:red':''">{{ renderDeleteStatus(record.is_delete) }}</span></div>
+          <div slot="specRender" slot-scope="{text, record}">{{ specRender(record.spec_id) }}</div>
+          <div slot="materialRender" slot-scope="{text, record}">{{ materialRender(record.material_id) }}</div>
+          <div slot="colorRender" slot-scope="{text, record}">{{ colorRender(record.color_id) }}</div>
         </standard-table>
       </div>
     </a-card>
@@ -124,7 +125,8 @@
                   },
                 ]" placeholder="请选择">
                 <a-select-option value="">请选择</a-select-option>
-                <a-select-option v-for="item in productDataSource" :key="item.id" :value="item.id">{{item.name}}</a-select-option>
+                <a-select-option v-for="item in productDataSource" :key="item.id" :value="item.id">{{ item.name }}
+                </a-select-option>
               </a-select>
               <a-button @click="this.getProductData" size="small">刷新</a-button>
             </a-form-item>
@@ -186,7 +188,8 @@
                   },
                 ]" placeholder="请选择">
                 <a-select-option value="">请选择</a-select-option>
-                <a-select-option v-for="item in specDataSource" :key="item.id" :value="item.id">{{item.name}}</a-select-option>
+                <a-select-option v-for="item in specDataSource" :key="item.id" :value="item.id">{{ item.name }}
+                </a-select-option>
               </a-select>
             </a-form-item>
           </a-col>
@@ -194,21 +197,22 @@
         </a-row>
         <a-row :gutter="16">
           <a-col :span="12">
-          <a-form-item
-              label="材质"
-          >
-            <a-select
-                v-decorator="[
+            <a-form-item
+                label="材质"
+            >
+              <a-select
+                  v-decorator="[
                   'material_id',
                   {
                     rules: [{ required: true, message: '请选' }],
                   },
                 ]" placeholder="请选择">
-              <a-select-option value="">请选择</a-select-option>
-              <a-select-option v-for="item in materialDataSource" :key="item.id" :value="item.id">{{item.name}}</a-select-option>
-            </a-select>
-          </a-form-item>
-        </a-col>
+                <a-select-option value="">请选择</a-select-option>
+                <a-select-option v-for="item in materialDataSource" :key="item.id" :value="item.id">{{ item.name }}
+                </a-select-option>
+              </a-select>
+            </a-form-item>
+          </a-col>
           <a-col :span="12">
             <a-form-item
                 label="颜色"
@@ -221,7 +225,8 @@
                   },
                 ]" placeholder="请选择">
                 <a-select-option value="">请选择</a-select-option>
-                <a-select-option v-for="item in colorDataSource" :key="item.id" :value="item.id">{{item.name}}</a-select-option>
+                <a-select-option v-for="item in colorDataSource" :key="item.id" :value="item.id">{{ item.name }}
+                </a-select-option>
               </a-select>
             </a-form-item>
           </a-col>
@@ -239,7 +244,8 @@
                   },
                 ]" placeholder="请选择">
                 <a-select-option value="">请选择</a-select-option>
-                <a-select-option v-for="item in weightDataSource" :key="item.id" :value="item.id">{{item.name}}</a-select-option>
+                <a-select-option v-for="item in weightDataSource" :key="item.id" :value="item.id">{{ item.name }}
+                </a-select-option>
               </a-select>
             </a-form-item>
           </a-col>
@@ -255,7 +261,8 @@
                   },
                 ]" placeholder="请选择">
                 <a-select-option value="">请选择</a-select-option>
-                <a-select-option v-for="item in lengthDataSource" :key="item.id" :value="item.id">{{item.name}}</a-select-option>
+                <a-select-option v-for="item in lengthDataSource" :key="item.id" :value="item.id">{{ item.name }}
+                </a-select-option>
               </a-select>
             </a-form-item>
           </a-col>
@@ -411,48 +418,48 @@ export default {
   },
   authorize: {
     // deleteRecord: 'delete'
-    onDel: {check:'delete',type:'role'},
-    onUnDel: {check:'delete',type:'role'}
+    onDel: {check: 'delete', type: 'role'},
+    onUnDel: {check: 'delete', type: 'role'}
   },
   mounted() {
-    this.getProductData().then(()=>this.getData())
+    this.getProductData().then(() => this.getData())
   },
-  computed:{
-    specDataSource:function(){
+  computed: {
+    specDataSource: function () {
       return this.dictByCateCode()('product_spec')
     },
-    colorDataSource:function(){
+    colorDataSource: function () {
       return this.dictByCateCode()('color')
     },
-    weightDataSource:function(){
+    weightDataSource: function () {
       return this.dictByCateCode()('weight_unit')
     },
-    feeDataSource:function(){
+    feeDataSource: function () {
       return this.dictByCateCode()('fee_cate')
     },
-    platformDataSource:function(){
+    platformDataSource: function () {
       return this.dictByCateCode()('online_platform')
     },
-    lengthDataSource:function(){
+    lengthDataSource: function () {
       return this.dictByCateCode()('length_unit')
     },
-    materialDataSource:function(){
+    materialDataSource: function () {
       return this.dictByCateCode()('material')
     },
   },
   methods: {
-    ...mapGetters('dict',['dictByCateCode']),
-    renderDeleteStatus(is_delete){
-      return parseInt(is_delete)===1?'删除':'正常'
+    ...mapGetters('dict', ['dictByCateCode']),
+    renderDeleteStatus(is_delete) {
+      return parseInt(is_delete) === 1 ? '删除' : '正常'
     },
-    specRender(spec_id){
-      return this.specDataSource.filter(item=>(item.id)===(spec_id))[0]?.name
+    specRender(spec_id) {
+      return this.specDataSource.filter(item => (item.id) === (spec_id))[0]?.name
     },
-    materialRender(material_id){
-      return this.materialDataSource.filter(item=>(item.id)===(material_id))[0]?.name
+    materialRender(material_id) {
+      return this.materialDataSource.filter(item => (item.id) === (material_id))[0]?.name
     },
-    colorRender(color_id){
-      return this.colorDataSource.filter(item=>(item.id)===(color_id))[0]?.name
+    colorRender(color_id) {
+      return this.colorDataSource.filter(item => (item.id) === (color_id))[0]?.name
     },
     handleReset() {
       this.form.resetFields();
@@ -465,7 +472,7 @@ export default {
       this.isEnterEditForm = false
       this.isDrawerVisible = true
       this.currentEditId = 0
-      this.$nextTick(()=>{
+      this.$nextTick(() => {
         this.handleReset()
       })
 
@@ -567,10 +574,10 @@ export default {
         }
       })
     },
-    onSearchReset(){
-      this.name=''
-      this.code=''
-      this.is_delete='0'
+    onSearchReset() {
+      this.name = ''
+      this.code = ''
+      this.is_delete = '0'
       this.onSearch()
     },
     onSearch() {
@@ -592,11 +599,16 @@ export default {
         page: this.pagination.current,
         pageSize: this.pagination.pageSize
       }).then(res => {
-        const {list, page, pageSize, total} = res?.data?.data ?? {}
-        this.dataSource = list
-        this.pagination.current = page
-        this.pagination.pageSize = pageSize
-        this.pagination.total = total
+        const {success, message, code} = res?.data ?? {}
+        if (!success) {
+          this.$message.warning(code + ': ' + message)
+        } else {
+          const {list, page, pageSize, total} = res?.data?.data ?? {}
+          this.dataSource = list
+          this.pagination.current = page
+          this.pagination.pageSize = pageSize
+          this.pagination.total = total
+        }
       })
     },
     async getProductData() {
@@ -604,8 +616,13 @@ export default {
         is_delete: 0,
         pageSize: 99999
       }).then(res => {
-        const {list} = res?.data?.data ?? {}
-        this.productDataSource = list
+        const {success, message, code} = res?.data ?? {}
+        if (!success) {
+          this.$message.warning(code + ': ' + message)
+        } else {
+          const {list} = res?.data?.data ?? {}
+          this.productDataSource = list
+        }
       })
     },
     deleteRecord(key) {

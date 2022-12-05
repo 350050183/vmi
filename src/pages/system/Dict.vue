@@ -14,9 +14,10 @@
                 >
                   <a-select placeholder="请选择" v-model="cate_id">
                     <a-select-option value="">请选择</a-select-option>
-                    <a-select-option v-for="item in cateDataSource" :key="item.id" :value="item.id">{{item.name}}</a-select-option>
+                    <a-select-option v-for="item in cateDataSource" :key="item.id" :value="item.id">{{ item.name }}
+                    </a-select-option>
                   </a-select>
-                  <router-link :to="`DictCateList`" >类型管理</router-link>
+                  <router-link :to="`DictCateList`">类型管理</router-link>
                 </a-form-item>
               </a-col>
               <a-col :md="6" :sm="24">
@@ -97,8 +98,9 @@
               恢复
             </a>
           </div>
-          <div slot="cateName" slot-scope="{text, record}">{{renderCateId(record.cate_id)}}</div>
-          <div slot="deleteRender" slot-scope="{text, record}"><span :style="record.is_delete==1?'color:red':''">{{renderDeleteStatus(record.is_delete)}}</span></div>
+          <div slot="cateName" slot-scope="{text, record}">{{ renderCateId(record.cate_id) }}</div>
+          <div slot="deleteRender" slot-scope="{text, record}"><span
+              :style="record.is_delete==1?'color:red':''">{{ renderDeleteStatus(record.is_delete) }}</span></div>
         </standard-table>
       </div>
     </a-card>
@@ -125,10 +127,11 @@
                   },
                 ]" placeholder="请选择">
                 <a-select-option value="">请选择</a-select-option>
-                <a-select-option v-for="item in cateDataSource" :key="item.id" :value="item.id">{{item.name}}</a-select-option>
+                <a-select-option v-for="item in cateDataSource" :key="item.id" :value="item.id">{{ item.name }}
+                </a-select-option>
               </a-select>
               <a-button @click="this.getCateData" size="small" style="margin-right:8px;">刷新</a-button>
-              <router-link :to="`DictCateList`" >类型管理</router-link>
+              <router-link :to="`DictCateList`">类型管理</router-link>
             </a-form-item>
           </a-col>
         </a-row>
@@ -235,7 +238,7 @@ export default {
   components: {StandardTable},
   data() {
     return {
-      cateDataSource:[],
+      cateDataSource: [],
       isEnterEditForm: false,
       currentEditId: 0,
       form: this.$form.createForm(this),
@@ -262,15 +265,15 @@ export default {
     deleteRecord: 'delete'
   },
   mounted() {
-    this.getCateData().then(()=>this.getData())
+    this.getCateData().then(() => this.getData())
   },
   methods: {
-    ...mapMutations('dict',['setDict']),
-    renderCateId(cate_id){
-      return this.cateDataSource.filter(item=>item.id===cate_id)[0]?.name
+    ...mapMutations('dict', ['setDict']),
+    renderCateId(cate_id) {
+      return this.cateDataSource.filter(item => item.id === cate_id)[0]?.name
     },
-    renderDeleteStatus(is_delete){
-      return parseInt(is_delete)===1?'删除':'正常'
+    renderDeleteStatus(is_delete) {
+      return parseInt(is_delete) === 1 ? '删除' : '正常'
     },
     handleReset() {
       this.form.resetFields();
@@ -387,11 +390,11 @@ export default {
         }
       })
     },
-    onSearchReset(){
-      this.cate_id=''
-      this.name=''
-      this.code=''
-      this.is_delete=''
+    onSearchReset() {
+      this.cate_id = ''
+      this.name = ''
+      this.code = ''
+      this.is_delete = ''
       this.onSearch()
     },
     onSearch() {
@@ -405,14 +408,19 @@ export default {
       this.pagination.pageSize = pageSize
       this.getData()
     },
-    async getCateData(){
+    async getCateData() {
       await cateIndex({
         is_delete: 0,
         page: 1,
         pageSize: 99999
       }).then(res => {
-        const {list} = res?.data?.data ?? {}
-        this.cateDataSource = list
+        const {success, message, code} = res?.data ?? {}
+        if (!success) {
+          this.$message.warning(code + ': ' + message)
+        } else {
+          const {list} = res?.data?.data ?? {}
+          this.cateDataSource = list
+        }
       })
     },
     async getData() {
@@ -424,13 +432,19 @@ export default {
         page: this.pagination.current,
         pageSize: this.pagination.pageSize
       }).then(res => {
-        const {list, page, pageSize, total} = res?.data?.data ?? {}
-        this.dataSource = list
-        this.pagination.current = page
-        this.pagination.pageSize = pageSize
-        this.pagination.total = total
-        //refresh localStorage
-        this.setDict(list)
+        const {success, message, code} = res?.data ?? {}
+        if (!success) {
+          this.$message.warning(code + ': ' + message)
+        } else {
+          const {list, page, pageSize, total} = res?.data?.data ?? {}
+          this.dataSource = list
+          this.pagination.current = page
+          this.pagination.pageSize = pageSize
+          this.pagination.total = total
+          //refresh localStorage
+          //有过滤条件，不能覆盖
+          // this.setDict(list)
+        }
       })
     },
     deleteRecord(key) {

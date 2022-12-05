@@ -71,7 +71,10 @@
             @selectedRowChange="onSelectChange"
         >
           <div slot="action" slot-scope="{text, record}">
-            <router-link :to="'WholeSalerShop?wholesaler_id='+record.id"><a-icon type="edit"/>店铺管理</router-link>
+            <router-link :to="'WholeSalerShop?wholesaler_id='+record.id">
+              <a-icon type="edit"/>
+              店铺管理
+            </router-link>
             <a style="margin-right: 8px;margin-left: 8px" @click="onBeforeEdit(record.id)">
               <a-icon type="edit"/>
               修改
@@ -85,7 +88,8 @@
               恢复
             </a>
           </div>
-          <div slot="deleteRender" slot-scope="{text, record}"><span :style="record.is_delete==1?'color:red':''">{{renderDeleteStatus(record.is_delete)}}</span></div>
+          <div slot="deleteRender" slot-scope="{text, record}"><span
+              :style="record.is_delete==1?'color:red':''">{{ renderDeleteStatus(record.is_delete) }}</span></div>
         </standard-table>
       </div>
     </a-card>
@@ -183,7 +187,7 @@
                 label="备注"
             >
               <a-textarea :auto-size="{ minRows: 3, maxRows: 5 }"
-                  v-decorator="[
+                          v-decorator="[
                   'memo',
                   {
                     rules: [{ required: true, message: '请填写备注' }],
@@ -305,9 +309,9 @@ export default {
     WholeSalerShop() {
       return WholeSalerShop
     },
-    ...mapGetters('dict',['dictByCateCode']),
-    renderDeleteStatus(is_delete){
-      return parseInt(is_delete)===1?'删除':'正常'
+    ...mapGetters('dict', ['dictByCateCode']),
+    renderDeleteStatus(is_delete) {
+      return parseInt(is_delete) === 1 ? '删除' : '正常'
     },
     handleReset() {
       this.form.resetFields();
@@ -424,10 +428,10 @@ export default {
         }
       })
     },
-    onSearchReset(){
-      this.name=''
-      this.code=''
-      this.is_delete='0'
+    onSearchReset() {
+      this.name = ''
+      this.code = ''
+      this.is_delete = '0'
       this.onSearch()
     },
     onSearch() {
@@ -449,11 +453,16 @@ export default {
         page: this.pagination.current,
         pageSize: this.pagination.pageSize
       }).then(res => {
-        const {list, page, pageSize, total} = res?.data?.data ?? {}
-        this.dataSource = list
-        this.pagination.current = page
-        this.pagination.pageSize = pageSize
-        this.pagination.total = total
+        const {success, message, code} = res?.data ?? {}
+        if (!success) {
+          this.$message.warning(code + ': ' + message)
+        } else {
+          const {list, page, pageSize, total} = res?.data?.data ?? {}
+          this.dataSource = list
+          this.pagination.current = page
+          this.pagination.pageSize = pageSize
+          this.pagination.total = total
+        }
       })
     },
     deleteRecord(key) {

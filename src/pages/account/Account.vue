@@ -6,7 +6,7 @@
           <div>搜索</div>
           <div>
             <a-row>
-              <a-col :md="8" :sm="24">
+              <a-col :md="6" :sm="24">
                 <a-form-item
                     label="帐号"
                     :labelCol="{span: 5}"
@@ -15,8 +15,17 @@
                   <a-input placeholder="请输入" v-model="name"/>
                 </a-form-item>
               </a-col>
+              <a-col :md="6" :sm="24">
+                <a-form-item
+                    label="电话"
+                    :labelCol="{span: 5}"
+                    :wrapperCol="{span: 18, offset: 1}"
+                >
+                  <a-input placeholder="请输入" v-model="phone"/>
+                </a-form-item>
+              </a-col>
 
-              <a-col :md="8" :sm="24">
+              <a-col :md="6" :sm="24">
                 <a-form-item
                     label="状态"
                     :labelCol="{span: 5}"
@@ -80,8 +89,10 @@
               恢复
             </a>
           </div>
-          <div slot="deleteRender" slot-scope="{text, record}"><span :style="record.is_delete==1?'color:red':''">{{renderDeleteStatus(record.is_delete)}}</span></div>
-          <div slot="wholesaler_id" slot-scope="{text, record}">{{renderWholeSaler(record.wholesaler_id)}}</div>
+          <div slot="deleteRender" slot-scope="{text, record}"><span
+              :style="record.is_delete==1?'color:red':''">{{ renderDeleteStatus(record.is_delete) }}</span></div>
+          <div slot="wholesaler_id" slot-scope="{text, record}">{{ renderWholeSaler(record.wholesaler_id) }}</div>
+          <div slot="roleRender" slot-scope="{text, record}">{{ roleRender(record.roles) }}</div>
         </standard-table>
       </div>
     </a-card>
@@ -127,6 +138,21 @@
         </a-row>
         <a-row :gutter="16">
           <a-col :span="12">
+            <a-form-item label="电话">
+              <a-input
+                  v-decorator="[
+                  'phone',
+                  {
+                    rules: [{ required: true, message: '请输入电话' }],
+                  },
+                ]"
+                  placeholder="请输入电话"
+              />
+            </a-form-item>
+          </a-col>
+        </a-row>
+        <a-row :gutter="16">
+          <a-col :span="12">
             <a-form-item
                 label="经销商"
             >
@@ -138,10 +164,11 @@
                   },
                 ]" placeholder="请选择">
                 <a-select-option value="">请选择</a-select-option>
-                <a-select-option v-for="item in wholesalerDataSource" :key="item.id" :value="item.id">{{item.name}}</a-select-option>
+                <a-select-option v-for="item in wholesalerDataSource" :key="item.id" :value="item.id">{{ item.name }}
+                </a-select-option>
               </a-select>
               <a-button @click="this.getWholesalerData" size="small" style="margin-right:8px;">刷新</a-button>
-              <router-link :to="`/system/WholeSaler`" >经销商管理</router-link>
+              <router-link :to="`/system/WholeSaler`">经销商管理</router-link>
             </a-form-item>
           </a-col>
           <a-col :span="12">
@@ -156,10 +183,12 @@
                   },
                 ]" placeholder="请选择" mode="multiple" option-label-prop="label">
                 <a-select-option value="" label="">请选择</a-select-option>
-                <a-select-option v-for="item in dataSourceOfRole" :key="item.id" :value="item.id" :label="item.name">{{item.name}}</a-select-option>
+                <a-select-option v-for="item in dataSourceOfRole" :key="item.id" :value="item.id" :label="item.name">
+                  {{ item.name }}
+                </a-select-option>
               </a-select>
               <a-button @click="this.getRoleData" size="small" style="margin-right:8px;">刷新</a-button>
-              <router-link :to="`/account/RoleList`" >角色管理</router-link>
+              <router-link :to="`/account/RoleList`">角色管理</router-link>
             </a-form-item>
           </a-col>
         </a-row>
@@ -249,7 +278,7 @@
         <a-button type="default" :style="{ marginRight: '8px' }" @click="handleReset">
           清空
         </a-button>
-        <a-button :style="{ marginRight: '8px' }" @click="onDrawerClose">
+        <a-button :style="{ marginRight: '8px' }" @click="onDrawerCloseResetPassword">
           关闭
         </a-button>
         <a-button type="primary" @click="onResetPassword">
@@ -273,9 +302,19 @@ const columns = [
     // scopedSlots: {customRender: 'name'}
   },
   {
+    title: '电话',
+    dataIndex: 'phone',
+    // scopedSlots: {customRender: 'name'}
+  },
+  {
     title: '分销商',
     dataIndex: 'wholesaler_id',
     scopedSlots: {customRender: 'wholesaler_id'}
+  },
+  {
+    title: '角色',
+    dataIndex: 'roles',
+    scopedSlots: {customRender: 'roleRender'}
   },
   {
     title: '状态',
@@ -299,8 +338,8 @@ export default {
   components: {StandardTable},
   data() {
     return {
-      wholesalerDataSource:[],
-      dataSourceOfRole:[],
+      wholesalerDataSource: [],
+      dataSourceOfRole: [],
       isEnterEditForm: false,
       isEnterResetPasswordForm: false,
       currentEditId: 0,
@@ -316,6 +355,7 @@ export default {
       newName: '',
       newWholesalerId: '',
       name: '',
+      phone: '',
       wholesaler_id: '',
       is_delete: '0',
       pagination: {
@@ -327,18 +367,21 @@ export default {
   },
   authorize: {
     // deleteRecord: 'delete'
-    onDel: {check:'delete',type:'role'},
-    onUnDel: {check:'delete',type:'role'}
+    onDel: {check: 'delete', type: 'role'},
+    onUnDel: {check: 'delete', type: 'role'}
   },
   mounted() {
-    this.getWholesalerData().then(()=>this.getRoleData()).then(()=>this.getData())
+    this.getWholesalerData().then(() => this.getRoleData()).then(() => this.getData())
   },
   methods: {
-    renderDeleteStatus(is_delete){
-      return parseInt(is_delete)===1?'删除':'正常'
+    renderDeleteStatus(is_delete) {
+      return parseInt(is_delete) === 1 ? '删除' : '正常'
     },
-    renderWholeSaler(wholesaler_id){
-      return this.wholesalerDataSource.filter(item=>(item.id)===(wholesaler_id))[0]?.name
+    renderWholeSaler(wholesaler_id) {
+      return this.wholesalerDataSource.filter(item => (item.id) === (wholesaler_id))[0]?.name
+    },
+    roleRender(roles) {
+      return roles.join(',')
     },
     handleReset() {
       this.form.resetFields();
@@ -360,7 +403,7 @@ export default {
       this.isDrawerVisibleResetPassword = false
       this.currentEditId = 0
       // this.form.setFieldsValue({})
-      this.$nextTick(()=>{
+      this.$nextTick(() => {
         this.handleReset()
       })
 
@@ -395,7 +438,7 @@ export default {
       })
 
     },
-    onBeforeResetPassword(id){
+    onBeforeResetPassword(id) {
       this.isDrawerVisible = false
       this.isDrawerVisibleResetPassword = true
       this.isEnterResetPasswordForm = id
@@ -489,10 +532,10 @@ export default {
         }
       })
     },
-    onSearchReset(){
-      this.name=''
-      this.code=''
-      this.is_delete='0'
+    onSearchReset() {
+      this.name = ''
+      this.code = ''
+      this.is_delete = '0'
       this.onSearch()
     },
     onSearch() {
@@ -506,42 +549,55 @@ export default {
       this.pagination.pageSize = pageSize
       this.getData()
     },
-    async getWholesalerData(){
+    async getWholesalerData() {
       await wholeSalerIndex({
         is_delete: 0,
         page: 1,
         pageSize: 99999
       }).then(res => {
-        console.log('getWholesalerData')
-        const {list} = res?.data?.data ?? {}
-        this.wholesalerDataSource = list
+        const {success, message, code} = res?.data ?? {}
+        if (!success) {
+          this.$message.warning(code + ': ' + message)
+        } else {
+          const {list} = res?.data?.data ?? {}
+          this.wholesalerDataSource = list
+        }
       })
     },
-    async getRoleData(){
+    async getRoleData() {
       await roleIndex({
         is_delete: 0,
         page: 1,
         pageSize: 99999
       }).then(res => {
-        console.log('getRoleData')
-        const {list} = res?.data?.data ?? {}
-        this.dataSourceOfRole = list
+        const {success, message, code} = res?.data ?? {}
+        if (!success) {
+          this.$message.warning(code + ': ' + message)
+        } else {
+          const {list} = res?.data?.data ?? {}
+          this.dataSourceOfRole = list
+        }
       })
     },
     async getData() {
       await index({
         name: this.name,
         code: this.code,
+        phone: this.phone,
         is_delete: this.is_delete,
         page: this.pagination.current,
         pageSize: this.pagination.pageSize
       }).then(res => {
-        console.log('getData')
-        const {list, page, pageSize, total} = res?.data?.data ?? {}
-        this.dataSource = list
-        this.pagination.current = page
-        this.pagination.pageSize = pageSize
-        this.pagination.total = total
+        const {success, message, code} = res?.data ?? {}
+        if (!success) {
+          this.$message.warning(code + ': ' + message)
+        } else {
+          const {list, page, pageSize, total} = res?.data?.data ?? {}
+          this.dataSource = list
+          this.pagination.current = page
+          this.pagination.pageSize = pageSize
+          this.pagination.total = total
+        }
       })
     },
     deleteRecord(key) {

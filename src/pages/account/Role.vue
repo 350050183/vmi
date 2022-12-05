@@ -88,7 +88,8 @@
               恢复
             </a>
           </div>
-          <div slot="deleteRender" slot-scope="{text, record}"><span :style="record.is_delete==1?'color:red':''">{{renderDeleteStatus(record.is_delete)}}</span></div>
+          <div slot="deleteRender" slot-scope="{text, record}"><span
+              :style="record.is_delete==1?'color:red':''">{{ renderDeleteStatus(record.is_delete) }}</span></div>
         </standard-table>
       </div>
     </a-card>
@@ -169,7 +170,7 @@
         @close="onDrawerCloseOfPermission"
         width="640"
     >
-      <a-form :form="form_role" layout="vertical" hide-required-mark >
+      <a-form :form="form_role" layout="vertical" hide-required-mark>
         <a-row :gutter="16">
           <a-col :span="24">
             <standard-table
@@ -196,7 +197,7 @@
                     <a-checkbox value="edit">
                       修改
                     </a-checkbox>
-                    <a-checkbox  value="delete">
+                    <a-checkbox value="delete">
                       删除
                     </a-checkbox>
                   </a-checkbox-group>
@@ -324,12 +325,11 @@ export default {
     deleteRecord: 'delete'
   },
   mounted() {
-    this.getData()
-    this.getDataOfPermission()
+    this.getDataOfPermission().then(() => this.getData())
   },
   methods: {
-    renderDeleteStatus(is_delete){
-      return parseInt(is_delete)===1?'删除':'正常'
+    renderDeleteStatus(is_delete) {
+      return parseInt(is_delete) === 1 ? '删除' : '正常'
     },
     handleReset() {
       this.form.resetFields();
@@ -353,10 +353,10 @@ export default {
     addNew() {
       this.isEnterEditForm = false
       this.isDrawerVisible = true
-      this.isEnterEditFormOfPermission=false
-      this.isDrawerVisibleOfPermission=false
+      this.isEnterEditFormOfPermission = false
+      this.isDrawerVisibleOfPermission = false
       this.currentEditId = 0
-      this.$nextTick(()=>{
+      this.$nextTick(() => {
         this.handleReset()
       })
     },
@@ -365,7 +365,7 @@ export default {
       this.isDrawerVisibleOfPermission = true
       this.currentAssignRoleId = id
       this.form_role.resetFields();
-      this.$nextTick(()=>{
+      this.$nextTick(() => {
         this.getRolePermissions()
       })
     },
@@ -405,8 +405,8 @@ export default {
       this.isDrawerVisible = true
       this.isEnterEditForm = true
       this.currentEditId = id
-      this.isEnterEditFormOfPermission=false
-      this.isDrawerVisibleOfPermission=false
+      this.isEnterEditFormOfPermission = false
+      this.isDrawerVisibleOfPermission = false
 
       this.$nextTick(() => {
         get({id: id}).then((res) => {
@@ -445,7 +445,7 @@ export default {
         if (!err) {
           console.log(values)
           assign({
-            id: this.currentAssignRoleId, permissions:values
+            id: this.currentAssignRoleId, permissions: values
           }).then(res => {
             const {success, message} = res?.data ?? {}
             if (success) {
@@ -508,10 +508,10 @@ export default {
         }
       })
     },
-    onSearchReset(){
-      this.name=''
-      this.code=''
-      this.is_delete='0'
+    onSearchReset() {
+      this.name = ''
+      this.code = ''
+      this.is_delete = '0'
       this.onSearch()
     },
     onSearch() {
@@ -530,7 +530,7 @@ export default {
       this.paginationOfPermission.pageSize = pageSize
       this.getDataOfPermission()
     },
-    getDataOfPermission() {
+    async getDataOfPermission() {
       permissionIndex({
         name: this.name,
         code: this.code,
@@ -538,21 +538,31 @@ export default {
         page: 1,
         pageSize: 99999
       }).then(res => {
-        const {list} = res?.data?.data ?? {}
-        this.dataSourceOfPermission = list
+        const {success, message, code} = res?.data ?? {}
+        if (!success) {
+          this.$message.warning(code + ': ' + message)
+        } else {
+          const {list} = res?.data?.data ?? {}
+          this.dataSourceOfPermission = list
+        }
       })
     },
     getRolePermissions() {
       get_assign({
-        id:this.currentAssignRoleId,
+        id: this.currentAssignRoleId,
         page: 1,
         pageSize: 99999
       }).then(res => {
-        const {list} = res?.data?.data ?? {}
-        this.form_role.setFieldsValue(list)
+        const {success, message, code} = res?.data ?? {}
+        if (!success) {
+          this.$message.warning(code + ': ' + message)
+        } else {
+          const {list} = res?.data?.data ?? {}
+          this.form_role.setFieldsValue(list)
+        }
       })
     },
-    getData() {
+    async getData() {
       index({
         name: this.name,
         code: this.code,
@@ -586,25 +596,25 @@ export default {
       this.$message.info('你点击了状态栏表头')
     },
     onChange() {
-      console.log('表格状态改变了','onChange')
+      console.log('表格状态改变了', 'onChange')
     },
     onSelectChange() {
       // this.$message.info('选中行改变了')
     },
     onChangeOfPermission(selectedRowKeys, selectedRows) {
-      console.log('表格状态改变了','onChangeOfPermission',selectedRowKeys,selectedRows)
+      console.log('表格状态改变了', 'onChangeOfPermission', selectedRowKeys, selectedRows)
     },
     onSelectChangeOfPermission(record, selected, original, isSelected) {
       // console.log('onSelectChangeOfPermission', original, isSelected)
-      if(original!=undefined) {
-        if(original instanceof Array){
-          original.map(item=>{
+      if (original != undefined) {
+        if (original instanceof Array) {
+          original.map(item => {
             let checkGroupName = 'operation-group-' + item.id
             this.form_role.setFieldsValue({[checkGroupName]: isSelected ? ['list', 'add', 'edit', 'delete'] : []})
           })
           let checkGroupName = 'operation-group-' + original.id
           this.form_role.setFieldsValue({[checkGroupName]: isSelected ? ['list', 'add', 'edit', 'delete'] : []})
-        }else{
+        } else {
           let checkGroupName = 'operation-group-' + original.id
           this.form_role.setFieldsValue({[checkGroupName]: isSelected ? ['list', 'add', 'edit', 'delete'] : []})
         }
