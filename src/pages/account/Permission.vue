@@ -107,7 +107,7 @@
         @close="onDrawerClose"
         width="640"
     >
-      <a-form :form="form" layout="vertical" hide-required-mark>
+      <a-form :form="form" layout="vertical" ORDER>
         <a-row :gutter="16">
           <a-col :span="12">
             <a-form-item label="父权限">

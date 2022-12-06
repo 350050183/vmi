@@ -98,7 +98,7 @@
         @close="onDrawerClose"
         width="640"
     >
-      <a-form :form="form" layout="vertical" hide-required-mark>
+      <a-form :form="form" layout="vertical" ORDER>
         <a-row :gutter="16">
           <a-col :span="12">
             <a-form-item label="名称">
@@ -433,7 +433,7 @@ export default {
       this.pagination.pageSize = pageSize
       this.getData()
     },
-    getOnlinePlatformData() {
+    async getOnlinePlatformData() {
       dictIndex({
         cate_code: 'online_platform',
         is_delete: this.is_delete,
@@ -449,7 +449,7 @@ export default {
         }
       })
     },
-    getData() {
+    async getData() {
       index({
         name: this.name,
         code: this.code,

@@ -1,7 +1,7 @@
 module.exports = {
   messages: {
     CN: {
-      pageDesc: '表单页用于向用户收集或验证信息，基础表单常见于数据项较少的表单场景。',
+      pageDesc: '创建新订单',
       title: '标题',
       titleInput: '给目标起个名字',
       date: '起止日期',

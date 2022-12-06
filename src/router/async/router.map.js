@@ -66,7 +66,7 @@ const routerMap = {
     component: () => import('@/pages/product/Product.vue')
   },
   Sku: {
-    path: 'SkuList',
+    path: 'Sku',
     name: '产品SKU管理',
     component: () => import('@/pages/product/Sku.vue')
   },

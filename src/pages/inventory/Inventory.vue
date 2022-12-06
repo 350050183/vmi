@@ -97,7 +97,7 @@
         @close="onDrawerClose"
         width="640"
     >
-      <a-form :form="form" layout="vertical" hide-required-mark>
+      <a-form :form="form" layout="vertical" ORDER>
         <a-row :gutter="16">
           <a-col :span="24">
             <a-form-item label="产品名称" v-if="!isEnterEditForm">
@@ -215,7 +215,7 @@
 import StandardTable from '@/components/table/StandardTable'
 import {index, add, edit, del, undel, get} from "@/services/Inventory";
 import {index as productIndex} from "@/services/Product";
-import {index as skuIndex} from "@/services/ProductSku";
+import {index as skuIndex} from "@/services/Sku";
 import {mapGetters} from "vuex";
 
 const columns = [

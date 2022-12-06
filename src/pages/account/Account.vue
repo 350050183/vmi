@@ -105,7 +105,7 @@
         @close="onDrawerClose"
         width="640"
     >
-      <a-form :form="form" layout="vertical" hide-required-mark>
+      <a-form :form="form" layout="vertical">
         <a-row :gutter="16">
           <a-col :span="12">
             <a-form-item label="帐号">
@@ -150,27 +150,6 @@
               />
             </a-form-item>
           </a-col>
-        </a-row>
-        <a-row :gutter="16">
-          <a-col :span="12">
-            <a-form-item
-                label="经销商"
-            >
-              <a-select
-                  v-decorator="[
-                  'wholesaler_id',
-                  {
-                    rules: [{ required: true, message: '请选择经销商' }],
-                  },
-                ]" placeholder="请选择">
-                <a-select-option value="">请选择</a-select-option>
-                <a-select-option v-for="item in wholesalerDataSource" :key="item.id" :value="item.id">{{ item.name }}
-                </a-select-option>
-              </a-select>
-              <a-button @click="this.getWholesalerData" size="small" style="margin-right:8px;">刷新</a-button>
-              <router-link :to="`/system/WholeSaler`">经销商管理</router-link>
-            </a-form-item>
-          </a-col>
           <a-col :span="12">
             <a-form-item
                 label="角色"
@@ -191,6 +170,28 @@
               <router-link :to="`/account/RoleList`">角色管理</router-link>
             </a-form-item>
           </a-col>
+        </a-row>
+        <a-row :gutter="16">
+          <a-col :span="12">
+            <a-form-item
+                label="经销商"
+            >
+              <a-select
+                  v-decorator="[
+                  'wholesaler_id',
+                  {
+                    rules: [{ required: false, message: '请选择经销商' }],
+                  },
+                ]" placeholder="请选择">
+                <a-select-option value="">请选择</a-select-option>
+                <a-select-option v-for="item in wholesalerDataSource" :key="item.id" :value="item.id">{{ item.name }}
+                </a-select-option>
+              </a-select>
+              <a-button @click="this.getWholesalerData" size="small" style="margin-right:8px;">刷新</a-button>
+              <router-link :to="`/system/WholeSaler`">经销商管理</router-link>
+            </a-form-item>
+          </a-col>
+
         </a-row>
 
       </a-form>
@@ -229,7 +230,7 @@
         @close="onDrawerCloseResetPassword"
         width="640"
     >
-      <a-form :form="form_reset_password" layout="vertical" hide-required-mark>
+      <a-form :form="form_reset_password" layout="vertical" ORDER>
         <a-row :gutter="16">
           <a-col :span="12">
             <a-form-item label="新密码">

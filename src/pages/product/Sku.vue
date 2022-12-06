@@ -99,6 +99,7 @@
           <div slot="specRender" slot-scope="{text, record}">{{ specRender(record.spec_id) }}</div>
           <div slot="materialRender" slot-scope="{text, record}">{{ materialRender(record.material_id) }}</div>
           <div slot="colorRender" slot-scope="{text, record}">{{ colorRender(record.color_id) }}</div>
+          <div slot="productRender" slot-scope="{text, record}">{{ productRender(record.product_id) }}</div>
         </standard-table>
       </div>
     </a-card>
@@ -110,7 +111,7 @@
         @close="onDrawerClose"
         width="640"
     >
-      <a-form :form="form" layout="vertical" hide-required-mark>
+      <a-form :form="form" layout="vertical" ORDER>
         <a-row :gutter="16">
 
           <a-col :span="12">
@@ -333,11 +334,16 @@
 
 <script>
 import StandardTable from '@/components/table/StandardTable'
-import {index, add, edit, del, undel, get} from "@/services/ProductSku";
+import {index, add, edit, del, undel, get} from "@/services/Sku";
 import {index as productIndex} from "@/services/Product";
 import {mapGetters} from "vuex";
 
 const columns = [
+  {
+    title: '产品名称',
+    dataIndex: 'product_name',
+    scopedSlots: {customRender: 'productRender'}
+  },
   {
     title: 'SKU名称',
     dataIndex: 'name',
@@ -460,6 +466,9 @@ export default {
     },
     colorRender(color_id) {
       return this.colorDataSource.filter(item => (item.id) === (color_id))[0]?.name
+    },
+    productRender(product_id) {
+      return this.productDataSource.filter(item => (item.id) === (product_id))[0]?.name
     },
     handleReset() {
       this.form.resetFields();

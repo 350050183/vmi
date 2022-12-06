@@ -6,17 +6,35 @@
           <div>搜索</div>
           <div>
             <a-row>
-              <a-col :md="8" :sm="24">
+              <a-col :md="6" :sm="24">
                 <a-form-item
-                    label="名称"
+                    label="产品名称"
                     :labelCol="{span: 5}"
                     :wrapperCol="{span: 18, offset: 1}"
                 >
-                  <a-input placeholder="请输入" v-model="name"/>
+                  <a-input placeholder="请输入" v-model="product_name"/>
+                </a-form-item>
+              </a-col>
+              <a-col :md="6" :sm="24">
+                <a-form-item
+                    label="客户电话"
+                    :labelCol="{span: 5}"
+                    :wrapperCol="{span: 18, offset: 1}"
+                >
+                  <a-input placeholder="请输入" v-model="customer_phone"/>
+                </a-form-item>
+              </a-col>
+              <a-col :md="6" :sm="24">
+                <a-form-item
+                    label="三方订单"
+                    :labelCol="{span: 5}"
+                    :wrapperCol="{span: 18, offset: 1}"
+                >
+                  <a-input placeholder="请输入" v-model="out_trade_no"/>
                 </a-form-item>
               </a-col>
 
-              <a-col :md="8" :sm="24">
+              <a-col :md="6" :sm="24">
                 <a-form-item
                     label="状态"
                     :labelCol="{span: 5}"
@@ -40,7 +58,7 @@
       </div>
       <div>
         <a-space class="operator">
-          <a-button @click="addNew" type="primary">新建</a-button>
+<!--          <a-button @click="addNew" type="primary">新建</a-button>-->
           <a-dropdown>
             <a-menu @click="handleMenuClick" slot="overlay">
               <a-menu-item key="delete">删除</a-menu-item>
@@ -63,19 +81,23 @@
             @selectedRowChange="onSelectChange"
         >
           <div slot="action" slot-scope="{text, record}">
-            <router-link :to="'/product/SkuList?id'+record.id">
-              <a-icon type="edit"/>
-              SKU管理
-            </router-link>
-            <a style="margin-right: 8px;margin-left: 8px" @click="onBeforeEdit(record.id)">
-              <a-icon type="edit"/>
-              修改
+            <a @click="onDel(record.id)" v-auth:role="`del`" v-if="record.is_delete==0">
+              <a-icon type="delete"/>
+              审核
             </a>
-            <a @click="onDel(record.id)" v-auth:role="`delete`" v-if="record.is_delete==0">
+            <a @click="onDel(record.id)" v-auth:role="`del`" v-if="record.is_delete==0">
+              <a-icon type="delete"/>
+              退回
+            </a>
+            <a @click="onDel(record.id)" v-auth:role="`del`" v-if="record.is_delete==0">
+              <a-icon type="delete"/>
+              退单
+            </a>
+            <a @click="onDel(record.id)" v-auth:role="`del`" v-if="record.is_delete==0">
               <a-icon type="delete"/>
               删除
             </a>
-            <a @click="onUnDel(record.id)" v-auth:role="`delete`" v-if="record.is_delete==1">
+            <a @click="onUnDel(record.id)" v-auth:role="`undel`" v-if="record.is_delete==1">
               <a-icon type="delete"/>
               恢复
             </a>
@@ -83,6 +105,7 @@
           <div slot="deleteRender" slot-scope="{text, record}"><span
               :style="record.is_delete==1?'color:red':''">{{ renderDeleteStatus(record.is_delete) }}</span></div>
           <div slot="cate_id" slot-scope="{text, record}">{{ renderCateId(record.cate_id) }}</div>
+          <div slot="orderStatusRender" slot-scope="{text, record}">{{ orderStatusRender(record.order_status) }}</div>
         </standard-table>
       </div>
     </a-card>
@@ -94,7 +117,7 @@
         @close="onDrawerClose"
         width="640"
     >
-      <a-form :form="form" layout="vertical" hide-required-mark>
+      <a-form :form="form" layout="vertical" ORDER>
         <a-row :gutter="16">
           <a-col :span="12">
             <a-form-item label="名称">
@@ -222,11 +245,20 @@ import {index, add, edit, del, undel, get} from "@/services/Order";
 import {mapGetters} from "vuex";
 import {FILEMANAGER} from '../../services/api'
 import {index as productIndex} from "@/services/Product";
-import {index as skuIndex} from "@/services/ProductSku";
+import {index as skuIndex} from "@/services/Sku";
 
 const columns = [
   {
+    title: '状态',
+    dataIndex: 'order_status',
+    scopedSlots: {customRender: 'orderStatusRender'}
+  },
+  {
     title: '订单号',
+    dataIndex: 'trade_no',
+  },
+  {
+    title: '第三方订单号',
     dataIndex: 'out_trade_no',
   },
   {
@@ -240,14 +272,28 @@ const columns = [
     scopedSlots: {customRender: 'sku_name'}
   },
   {
-    title: '状态',
-    dataIndex: 'is_delete',
-    needTotal: false,
-    scopedSlots: {customRender: 'deleteRender'}
+    title: '经销商',
+    dataIndex: 'wholesaler_id',
+    scopedSlots: {customRender: 'wholesalerRender'}
   },
   {
-    title: '更新时间',
-    dataIndex: 'mdate',
+    title: '客户姓名',
+    dataIndex: 'customer_name',
+    needTotal: false,
+  },
+  {
+    title: '客户电话',
+    dataIndex: 'customer_phone',
+    needTotal: false,
+  },
+  {
+    title: '订单时间',
+    dataIndex: 'order_date',
+    sorter: true
+  },
+  {
+    title: '创建时间',
+    dataIndex: 'cdate',
     sorter: true
   },
   {
@@ -267,6 +313,9 @@ export default {
   components: {StandardTable},
   data() {
     return {
+      product_name:'',
+      customer_phone:'',
+      out_trade_no:'',
       uploadedFile: '',
       uploadUrl: FILEMANAGER + '/upload',
       loading: false,
@@ -297,11 +346,17 @@ export default {
   },
   authorize: {
     // deleteRecord: 'delete'
-    onDel: {check: 'delete', type: 'role'},
-    onUnDel: {check: 'delete', type: 'role'}
+    onDel: {check: 'del', type: 'role'},
+    onUnDel: {check: 'undel', type: 'role'}
   },
   mounted() {
-    this.getProductData().then(()=>this.getSkuData()).then(()=>this.getData())
+    // this.getProductData().then(()=>this.getSkuData()).then(()=>this.getData())
+    this.getData()
+  },
+  computed: {
+    orderStatusDataSource: function () {
+      return this.dictByCateCode()('order_status')
+    },
   },
   methods: {
     ...mapGetters('dict', ['dictByCateCode']),
@@ -337,6 +392,9 @@ export default {
 
     renderDeleteStatus(is_delete) {
       return parseInt(is_delete) === 1 ? '删除' : '正常'
+    },
+    orderStatusRender(order_status) {
+      return this.orderStatusDataSource.filter(item => (item.code) === (order_status))[0]?.name
     },
     renderCateId(cate_id) {
       return this.cateDataSource.filter(item => (item.id) === (cate_id))[0]?.name
@@ -479,8 +537,9 @@ export default {
     },
     async getData() {
       await index({
-        name: this.name,
-        code: this.code,
+        product_name: this.product_name,
+        customer_phone: this.customer_phone,
+        out_trade_no: this.out_trade_no,
         is_delete: this.is_delete,
         page: this.pagination.current,
         pageSize: this.pagination.pageSize

@@ -102,7 +102,7 @@
         @close="onDrawerClose"
         width="640"
     >
-      <a-form :form="form" layout="vertical" hide-required-mark>
+      <a-form :form="form" layout="vertical" ORDER>
         <a-row :gutter="16">
           <a-col :span="12">
             <a-form-item label="名称">
@@ -168,10 +168,10 @@
         :visible="isDrawerVisibleOfPermission"
         :after-visible-change="afterDrawerVisibleChangeOfPermission"
         @close="onDrawerCloseOfPermission"
-        width="640"
+        width="700"
     >
-      <a-form :form="form_role" layout="vertical" hide-required-mark>
-        <a-row :gutter="16">
+      <a-form :form="form_role" layout="vertical" ORDER>
+        <a-row :gutter="8">
           <a-col :span="24">
             <standard-table
                 size="small"
@@ -188,7 +188,7 @@
                   <a-checkbox-group
                       v-decorator="['operation-group-'+record.id, { initialValue: [] }]"
                   >
-                    <a-checkbox value="list">
+                    <a-checkbox value="index">
                       查询
                     </a-checkbox>
                     <a-checkbox value="add">
@@ -197,8 +197,11 @@
                     <a-checkbox value="edit">
                       修改
                     </a-checkbox>
-                    <a-checkbox value="delete">
+                    <a-checkbox value="del">
                       删除
+                    </a-checkbox>
+                    <a-checkbox value="undel">
+                      恢复
                     </a-checkbox>
                   </a-checkbox-group>
                 </a-form-item>
@@ -610,13 +613,13 @@ export default {
         if (original instanceof Array) {
           original.map(item => {
             let checkGroupName = 'operation-group-' + item.id
-            this.form_role.setFieldsValue({[checkGroupName]: isSelected ? ['list', 'add', 'edit', 'delete'] : []})
+            this.form_role.setFieldsValue({[checkGroupName]: isSelected ? ['index', 'add', 'edit', 'del', 'undel'] : []})
           })
           let checkGroupName = 'operation-group-' + original.id
-          this.form_role.setFieldsValue({[checkGroupName]: isSelected ? ['list', 'add', 'edit', 'delete'] : []})
+          this.form_role.setFieldsValue({[checkGroupName]: isSelected ? ['index', 'add', 'edit', 'del', 'undel'] : []})
         } else {
           let checkGroupName = 'operation-group-' + original.id
-          this.form_role.setFieldsValue({[checkGroupName]: isSelected ? ['list', 'add', 'edit', 'delete'] : []})
+          this.form_role.setFieldsValue({[checkGroupName]: isSelected ? ['index', 'add', 'edit', 'del', 'undel'] : []})
         }
       }
       // console.log(this.selectedRowsOfPermission)

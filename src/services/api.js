@@ -9,7 +9,7 @@ module.exports = {
   DICT: `${BASE_URL}/Dict/`,
   ORDER: `${BASE_URL}/Order/`,
   PRODUCT: `${BASE_URL}/Product/`,
-  PRODUCTSKU: `${BASE_URL}/ProductSku/`,
+  SKU: `${BASE_URL}/Sku/`,
   INVENTORY: `${BASE_URL}/Inventory/`,
   INVENTORYLOG: `${BASE_URL}/InventoryLog/`,
   OPLOG: `${BASE_URL}/OpLog/`,

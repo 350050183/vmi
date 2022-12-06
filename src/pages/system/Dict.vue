@@ -113,7 +113,7 @@
         @close="onDrawerClose"
         width="640"
     >
-      <a-form :form="form" layout="vertical" hide-required-mark>
+      <a-form :form="form" layout="vertical" ORDER>
         <a-row :gutter="16">
           <a-col :span="12">
             <a-form-item
@@ -198,7 +198,7 @@
 <script>
 import StandardTable from '@/components/table/StandardTable'
 import {index as cateIndex} from "@/services/DictCate";
-import {index, add, edit, del, undel, get} from "@/services/Dict";
+import {index, add, edit, del, undel, get, index as dictIndex} from "@/services/Dict";
 import {mapMutations} from "vuex";
 
 const columns = [
@@ -299,6 +299,7 @@ export default {
             if (success) {
               this.$message.success(message)
               this.getData()
+              this.refreshDict()
             } else {
               this.$message.error(message)
             }
@@ -333,6 +334,7 @@ export default {
             if (success) {
               this.$message.success(message)
               this.getData()
+              this.refreshDict()
               this.isDrawerVisible = false
             } else {
               this.$message.error(message)
@@ -361,6 +363,7 @@ export default {
           this.$message.success(message)
           this.selectedRows = []
           this.getData()
+          this.refreshDict()
         } else {
           this.$message.error(message)
         }
@@ -385,6 +388,7 @@ export default {
           this.$message.success(message)
           this.selectedRows = []
           this.getData()
+          this.refreshDict()
         } else {
           this.$message.error(message)
         }
@@ -445,6 +449,12 @@ export default {
           //有过滤条件，不能覆盖
           // this.setDict(list)
         }
+      })
+    },
+    refreshDict(){
+      //缓存数据字典
+      dictIndex({pageSize:99999}).then((result)=>{
+        this.setDict(result.data.data.list)
       })
     },
     deleteRecord(key) {
