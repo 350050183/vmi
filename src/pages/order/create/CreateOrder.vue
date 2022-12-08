@@ -80,7 +80,7 @@
                   {
                     rules: [{ required: true, message: '请选' }],
                   },
-                ]"/>
+                ]" valueFormat="YY-mm-dd"/>
       </a-form-item>
       <a-form-item
           label="第三方平台订单号"

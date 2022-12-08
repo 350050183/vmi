@@ -47,19 +47,6 @@
         </a-form>
       </div>
       <div>
-        <a-space class="operator">
-          <a-button @click="addNew" type="primary">新建</a-button>
-          <a-dropdown>
-            <a-menu @click="handleMenuClick" slot="overlay">
-              <a-menu-item key="delete">删除</a-menu-item>
-              <a-menu-item key="undelete">恢复</a-menu-item>
-            </a-menu>
-            <a-button>
-              批量操作
-              <a-icon type="down"/>
-            </a-button>
-          </a-dropdown>
-        </a-space>
 
         <standard-table
             :columns="columns"
@@ -70,19 +57,8 @@
             :pagination="{...pagination, onChange: onPageChange}"
             @selectedRowChange="onSelectChange"
         >
-          <div slot="action" slot-scope="{text, record}">
-            <a style="margin-right: 8px" @click="onBeforeEdit(record.id)">
-              <a-icon type="edit"/>
-              修改
-            </a>
-            <a @click="onDel(record.id)" v-auth="`delete`" v-if="record.is_delete==0">
-              <a-icon type="delete"/>
-              删除
-            </a>
-            <a @click="onUnDel(record.id)" v-auth="`delete`" v-if="record.is_delete==1">
-              <a-icon type="delete"/>
-              恢复
-            </a>
+          <div slot="action">
+
           </div>
           <div slot="deleteRender" slot-scope="{text, record}"><span
               :style="record.is_delete==1?'color:red':''">{{ renderDeleteStatus(record.is_delete) }}</span></div>

@@ -19,6 +19,33 @@ export async function del(params){
 export async function undel(params){
     return request(ORDER+'undel', METHOD.POST, params,{})
 }
+export async function checkStatus(params){
+    return request(ORDER+'checkStatus', METHOD.POST, params,{})
+}
+export async function backStatus(params){
+    return request(ORDER+'backStatus', METHOD.POST, params,{})
+}
+export async function returnStatus(params){
+    return request(ORDER+'returnStatus', METHOD.POST, params,{})
+}
+export async function cancelStatus(params){
+    return request(ORDER+'cancelStatus', METHOD.POST, params,{})
+}
+export async function newStatusDelivery(params){
+    return request(ORDER+'newStatusDelivery', METHOD.POST, params,{})
+}
+export async function checkStatusDelivery(params){
+    return request(ORDER+'checkStatusDelivery', METHOD.POST, params,{})
+}
+export async function interceptStatusDelivery(params){
+    return request(ORDER+'interceptStatusDelivery', METHOD.POST, params,{})
+}
+export async function returnStatusDelivery(params){
+    return request(ORDER+'returnStatusDelivery', METHOD.POST, params,{})
+}
+export async function backStatusDelivery(params){
+    return request(ORDER+'backStatusDelivery', METHOD.POST, params,{})
+}
 
 export default {
     index,
@@ -26,5 +53,14 @@ export default {
     add,
     edit,
     del,
-    undel
+    undel,
+    checkStatus,
+    backStatus,
+    returnStatus,
+    cancelStatus,
+    newStatusDelivery,
+    checkStatusDelivery,
+    interceptStatusDelivery,
+    returnStatusDelivery,
+    backStatusDelivery,
 }

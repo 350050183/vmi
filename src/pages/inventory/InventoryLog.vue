@@ -243,12 +243,6 @@ const columns = [
     scopedSlots: {customRender: 'accountRender'}
   },
   {
-    title: '状态',
-    dataIndex: 'is_delete',
-    needTotal: false,
-    scopedSlots: {customRender: 'deleteRender'}
-  },
-  {
     title: '更新时间',
     dataIndex: 'mdate',
     sorter: true
@@ -303,7 +297,7 @@ export default {
       return parseInt(is_delete) === 1 ? '删除' : '正常'
     },
     reasonRender(reason_id) {
-      return this.reasonDataSource.filter(item => (item.id) === (reason_id))[0]?.name
+      return this.reasonDataSource.filter(item => (item.code) === (reason_id))[0]?.name
     },
     accountRender(account_id) {
       return this.accountDataSource.filter(item => (item.id) === (account_id))[0]?.name

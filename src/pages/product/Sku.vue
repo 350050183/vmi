@@ -58,8 +58,8 @@
       </div>
       <div>
         <a-space class="operator">
-          <a-button @click="addNew" type="primary">新建</a-button>
-          <a-dropdown>
+          <a-button @click="addNew" type="primary" v-auth:role="`add`">新建</a-button>
+          <a-dropdown v-auth:role="`del`">
             <a-menu @click="handleMenuClick" slot="overlay">
               <a-menu-item key="delete">删除</a-menu-item>
               <a-menu-item key="undelete">恢复</a-menu-item>
@@ -81,15 +81,15 @@
             @selectedRowChange="onSelectChange"
         >
           <div slot="action" slot-scope="{text, record}">
-            <a style="margin-right: 8px" @click="onBeforeEdit(record.id)">
+            <a style="margin-right: 8px" @click="onBeforeEdit(record.id)" v-auth:role="`edit`">
               <a-icon type="edit"/>
               修改
             </a>
-            <a @click="onDel(record.id)" v-auth:role="`delete`" v-if="record.is_delete==0">
+            <a @click="onDel(record.id)" v-auth:role="`del`" v-if="record.is_delete==0">
               <a-icon type="delete"/>
               删除
             </a>
-            <a @click="onUnDel(record.id)" v-auth:role="`delete`" v-if="record.is_delete==1">
+            <a @click="onUnDel(record.id)" v-auth:role="`undel`" v-if="record.is_delete==1">
               <a-icon type="delete"/>
               恢复
             </a>
@@ -340,14 +340,14 @@ import {mapGetters} from "vuex";
 
 const columns = [
   {
-    title: '产品名称',
-    dataIndex: 'product_name',
-    scopedSlots: {customRender: 'productRender'}
-  },
-  {
     title: 'SKU名称',
     dataIndex: 'name',
     // scopedSlots: {customRender: 'name'}
+  },
+  {
+    title: '产品名称',
+    dataIndex: 'product_name',
+    scopedSlots: {customRender: 'productRender'}
   },
   {
     title: '编码',

@@ -8,6 +8,7 @@ module.exports = {
   DICTCATE: `${BASE_URL}/DictCate/`,
   DICT: `${BASE_URL}/Dict/`,
   ORDER: `${BASE_URL}/Order/`,
+  ORDERLOG: `${BASE_URL}/OrderLog/`,
   PRODUCT: `${BASE_URL}/Product/`,
   SKU: `${BASE_URL}/Sku/`,
   INVENTORY: `${BASE_URL}/Inventory/`,
