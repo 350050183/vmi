@@ -213,7 +213,7 @@
                   {
                     rules: [{ required: true, message: '请选' }],
                   },
-                ]" valueFormat="YY-mm-dd"/>
+                ]"/>
         </a-form-item>
         <a-form-item
             label="第三方平台订单号"
@@ -298,6 +298,70 @@
                     rules: [{ required: false, message: '请填写' }],
                   },
                 ]" placeholder="请填写"/>
+        </a-form-item>
+
+        <a-form-item
+            label="物流公司"
+            :labelCol="{span: 7}"
+            :wrapperCol="{span: 10}"
+        >
+          <a-select v-decorator="[
+          'delivery_company_id',
+          {
+          rules: [{ required: true, message: '请填写' }],
+          },
+          ]" placeholder="请填写">
+            <a-select-option value="">请选择</a-select-option>
+            <a-select-option v-for="item in deliveryDataSource" :key="item.id" :value="item.id">{{ item.name }}</a-select-option>
+          </a-select>
+        </a-form-item>
+        <a-form-item
+            label="物流订单号"
+            :labelCol="{span: 7}"
+            :wrapperCol="{span: 10}"
+        >
+          <a-input v-decorator="[
+          'delivery_track_no',
+          {
+          rules: [{ required: true, message: '请填写' }],
+          },
+          ]" placeholder="请填写"/>
+        </a-form-item>
+        <a-form-item
+            label="物流费用"
+            :labelCol="{span: 7}"
+            :wrapperCol="{span: 10}"
+        >
+          <a-input v-decorator="[
+          'delivery_fee',
+          {
+          rules: [{ required: true, message: '请填写' }],
+          },
+          ]" placeholder="请填写"/>
+        </a-form-item>
+        <a-form-item
+            label="物流日期"
+            :labelCol="{span: 7}"
+            :wrapperCol="{span: 10}"
+        >
+          <a-date-picker v-decorator="[
+          'delivery_date',
+          {
+          rules: [{ required: true, message: '请填写' }],
+          },
+          ]" placeholder="请填写"/>
+        </a-form-item>
+        <a-form-item
+            label="备注"
+            :labelCol="{span: 7}"
+            :wrapperCol="{span: 10}"
+        >
+          <a-textarea rows="4" v-decorator="[
+          'delivery_memo',
+          {
+          rules: [{ required: false, message: '请填写' }],
+          },
+          ]" placeholder="请填写"></a-textarea>
         </a-form-item>
       </a-form>
       <div
@@ -423,7 +487,7 @@
           {
           rules: [{ required: true, message: '请填写' }],
           },
-          ]" placeholder="请填写" valueFormat="YY-mm-dd"/>
+          ]" placeholder="请填写"/>
         </a-form-item>
         <a-form-item
             :label="'备注'+modalTitleOfDelivey+'原因'"
@@ -672,6 +736,7 @@ export default {
               this.modalConfirmLoading = false;
             } else {
               this.$message.error(message)
+              this.modalConfirmLoading = false;
             }
           })
         }

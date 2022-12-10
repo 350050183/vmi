@@ -1,8 +1,8 @@
 <template>
   <page-layout :avatar="currUser.avatar">
     <div slot="headerContent">
-      <div class="title">{{welcome.timeFix[lang]}}，{{currUser.name}}，{{welcome.message[lang]}}</div>
-      <div>{{currUser.position[lang]}}</div>
+      <div class="title">{{welcome.timeFix}}，{{currUser.name}}，{{welcome.msg}}</div>
+      <div>{{currUser.position}}</div>
     </div>
     <template slot="extra">
       <head-info class="split-right" :title="$t('project')" content="56"/>
@@ -106,13 +106,13 @@ export default {
     ...mapState('setting', ['lang'])
   },
   created() {
-    request('/user/welcome', METHOD.GET).then(res => this.welcome = res.data)
-    request('/work/activity', METHOD.GET).then(res => this.activities = res.data)
-    request('/work/team', METHOD.GET).then(res => this.teams = res.data)
-    request('/project', METHOD.GET).then(res => {
-        this.projects = res.data
-        this.loading = false
-      })
+    request('/vmi/account/welcome', METHOD.GET).then(res => this.welcome = res.data.data)
+    // request('/work/activity', METHOD.GET).then(res => this.activities = res.data)
+    // request('/work/team', METHOD.GET).then(res => this.teams = res.data)
+    // request('/project', METHOD.GET).then(res => {
+    //     this.projects = res.data
+    //     this.loading = false
+    //   })
   }
 }
 </script>

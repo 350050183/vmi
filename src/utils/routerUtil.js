@@ -67,6 +67,7 @@ function parseRoutes(routesConfig, routerMap) {
         delete cfgMeta[key]
       }
     })
+    //cfgMeta.meta配置优先级高于router.meta，故覆盖
     Object.assign(meta, cfgMeta)
     const route = {
       path: routeCfg.path || router.path || routeCfg.router,

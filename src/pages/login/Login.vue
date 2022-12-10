@@ -16,8 +16,8 @@
               <a-input
                 autocomplete="autocomplete"
                 size="large"
-                placeholder="admin"
-                v-decorator="['name', {rules: [{ required: true, message: '请输入账户名', whitespace: true}]}]"
+                placeholder="输入帐号"
+                v-decorator="['name', {rules: [{ required: true, message: '请输入帐号名', whitespace: true}]}]"
               >
                 <a-icon slot="prefix" type="user" />
               </a-input>
@@ -25,7 +25,7 @@
             <a-form-item>
               <a-input
                 size="large"
-                placeholder="888888"
+                placeholder="输入密码"
                 autocomplete="autocomplete"
                 type="password"
                 v-decorator="['password', {rules: [{ required: true, message: '请输入密码', whitespace: true}]}]"
@@ -100,6 +100,7 @@ export default {
     ...mapMutations('account', ['setUser', 'setPermissions', 'setRoles']),
     ...mapMutations('dict', ['setDict']),
     onSubmit (e) {
+      console.log(process.env.NODE_ENV)
       e.preventDefault()
       this.form.validateFields((err) => {
         if (!err) {
@@ -122,6 +123,7 @@ export default {
         // 获取路由配置
         getRoutesConfig().then(result => {
           const routesConfig = result.data.data
+          // console.log(routesConfig)
           loadRoutes(routesConfig)
           this.$router.push('/home/workplace')
           this.$message.success(loginRes.message, 3)
