@@ -4,7 +4,7 @@
       <a-form-item
           label="选择产品"
           :labelCol="{span: 7}"
-          :wrapperCol="{span: 10}"
+          :wrapperCol="{span: 15}"
       >
         <a-select
             v-decorator="[
@@ -22,7 +22,7 @@
       <a-form-item
           label="选择SKU"
           :labelCol="{span: 7}"
-          :wrapperCol="{span: 10}"
+          :wrapperCol="{span: 15}"
       >
         <a-select
             v-decorator="[
@@ -39,7 +39,7 @@
       <a-form-item
           label="经销商"
           :labelCol="{span: 7}"
-          :wrapperCol="{span: 10}"
+          :wrapperCol="{span: 15}"
       >
         <a-select
             v-decorator="[
@@ -56,7 +56,7 @@
       <a-form-item
           label="经销商店铺"
           :labelCol="{span: 7}"
-          :wrapperCol="{span: 10}"
+          :wrapperCol="{span: 15}"
       >
         <a-select
             v-decorator="[
@@ -73,7 +73,7 @@
       <a-form-item
           label="订单日期"
           :labelCol="{span: 7}"
-          :wrapperCol="{span: 10}"
+          :wrapperCol="{span: 15}"
       >
         <a-date-picker v-decorator="[
                   'order_date',
@@ -85,7 +85,7 @@
       <a-form-item
           label="第三方平台订单号"
           :labelCol="{span: 7}"
-          :wrapperCol="{span: 10}"
+          :wrapperCol="{span: 15}"
       >
         <a-input v-decorator="[
                   'out_trade_no',
@@ -97,7 +97,7 @@
       <a-form-item
           label="订单数量"
           :labelCol="{span: 7}"
-          :wrapperCol="{span: 10}"
+          :wrapperCol="{span: 15}"
       >
         <a-input v-decorator="[
                   'sku_num',
@@ -109,7 +109,7 @@
       <a-form-item
           label="客户昵称"
           :labelCol="{span: 7}"
-          :wrapperCol="{span: 10}"
+          :wrapperCol="{span: 15}"
       >
         <a-input v-decorator="[
                   'customer_nickname',
@@ -121,7 +121,7 @@
       <a-form-item
           label="客户姓名"
           :labelCol="{span: 7}"
-          :wrapperCol="{span: 10}"
+          :wrapperCol="{span: 15}"
       >
         <a-input v-decorator="[
                   'customer_name',
@@ -133,7 +133,7 @@
       <a-form-item
           label="客户联系电话"
           :labelCol="{span: 7}"
-          :wrapperCol="{span: 10}"
+          :wrapperCol="{span: 15}"
       >
         <a-input v-decorator="[
                   'customer_phone',
@@ -145,7 +145,7 @@
       <a-form-item
           label="客户地址"
           :labelCol="{span: 7}"
-          :wrapperCol="{span: 10}"
+          :wrapperCol="{span: 15}"
       >
         <a-input v-decorator="[
                   'customer_address',
@@ -157,7 +157,7 @@
       <a-form-item
           label="订单备注"
           :labelCol="{span: 7}"
-          :wrapperCol="{span: 10}"
+          :wrapperCol="{span: 15}"
       >
         <a-textarea rows="4" v-decorator="[
                   'order_memo',
@@ -169,7 +169,6 @@
 
       <a-form-item style="margin-top: 24px" :wrapperCol="{span: 10, offset: 7}">
         <a-button type="primary" @click="onCreateOrder">{{ $t('submit') }}</a-button>
-        <a-button style="margin-left: 8px">{{ $t('save') }}</a-button>
       </a-form-item>
     </a-form>
   </a-card>

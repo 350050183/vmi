@@ -74,11 +74,16 @@
             <a style="margin-right: 8px" @click="onBeforeEdit(record.id)" v-auth:role="`edit`">
               <a-icon type="edit"/>
               修改
-            </a>
-            <a @click="onDel(record.id)" v-auth:role="`del`" v-if="record.is_delete==0">
-              <a-icon type="delete"/>
-              删除
-            </a>
+            </a><br/>
+            <a-popconfirm
+                title="确定要删除?"
+                ok-text="确定"
+                cancel-text="取消"
+                @confirm="onDel(record.id)"
+                v-auth:role="`del`" v-if="record.is_delete==0"
+            >
+              <a href="#"><a-icon type="delete"/>删除</a>
+            </a-popconfirm>
             <a @click="onUnDel(record.id)" v-auth:role="`undel`" v-if="record.is_delete==1">
               <a-icon type="delete"/>
               恢复
@@ -96,7 +101,7 @@
     <a-drawer
         title="类别管理"
         placement="right"
-        :closable="false"
+        :closable="true"
         :visible="isDrawerVisible"
         :after-visible-change="afterDrawerVisibleChange"
         @close="onDrawerClose"
@@ -302,7 +307,9 @@ const columns = [
   },
   {
     title: '操作',
-    scopedSlots: {customRender: 'action'}
+    scopedSlots: {customRender: 'action'},
+    width:100,
+    fixed: 'right',
   }
 ]
 

@@ -25,6 +25,7 @@
       @change="onChange"
       :rowSelection="selectedRows ? {selectedRowKeys, onSelect, onSelectAll} : undefined"
       :defaultExpandAllRows="defaultExpandAllRows"
+      :scroll="{ x: 1500}"
     >
       <template slot-scope="text, record, index" :slot="slot" v-for="slot in Object.keys($scopedSlots).filter(key => key !== 'expandedRowRender') ">
         <slot :name="slot" v-bind="{text, record, index}"></slot>

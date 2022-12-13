@@ -79,10 +79,11 @@
               <a-icon type="plus"/>
               添加子权限
             </a>
+            <br/>
             <a style="margin-right: 8px" @click="onBeforeEdit(record.id)">
               <a-icon type="edit"/>
               修改
-            </a>
+            </a><br/>
             <a @click="onDel(record.id)" v-auth="`delete`" v-if="record.is_delete==0">
               <a-icon type="delete"/>
               删除
@@ -101,7 +102,7 @@
     <a-drawer
         title="权限管理"
         placement="right"
-        :closable="false"
+        :closable="true"
         :visible="isDrawerVisible"
         :after-visible-change="afterDrawerVisibleChange"
         @close="onDrawerClose"
@@ -268,7 +269,9 @@ const columns = [
   },
   {
     title: '操作',
-    scopedSlots: {customRender: 'action'}
+    scopedSlots: {customRender: 'action'},
+    width:130,
+    fixed: 'right',
   }
 ]
 

@@ -93,7 +93,7 @@
                 订单受理
                 <a-icon type="down"/>
               </a-button>
-            </a-dropdown>
+            </a-dropdown><br/>
             <a-dropdown v-auth:role="`del`">
               <a-menu @click="showModalDelivery" slot="overlay">
 <!--                <a-menu-item :key="'1-'+record.id">待发货</a-menu-item>-->
@@ -106,11 +106,11 @@
                 物流受理
                 <a-icon type="down"/>
               </a-button>
-            </a-dropdown>
-            <a-button style="margin-left:5px;margin-top:3px;" size="small" @click="showOpLogDrawer(record.id)">
+            </a-dropdown><br/>
+            <a-button style="margin-top:3px;" size="small" @click="showOpLogDrawer(record.id)">
               操作日志
-            </a-button>
-            <a style="margin-right: 8px;margin-left: 8px" @click="onBeforeEdit(record.id)">
+            </a-button><br/>
+            <a style="margin-right: 8px;" @click="onBeforeEdit(record.id)">
               <a-icon type="edit"/>
               修改
             </a>
@@ -128,7 +128,7 @@
     <a-drawer
         title="订单管理"
         placement="right"
-        :closable="false"
+        :closable="true"
         :visible="isDrawerVisible"
         @close="onDrawerClose"
         width="640"
@@ -599,7 +599,9 @@ const columns = [
   },
   {
     title: '操作',
-    scopedSlots: {customRender: 'action'}
+    scopedSlots: {customRender: 'action'},
+    width:100,
+    fixed: 'right',
   }
 ]
 

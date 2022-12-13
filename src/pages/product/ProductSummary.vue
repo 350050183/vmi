@@ -159,7 +159,9 @@ const columns = [
   },
   {
     title: '操作',
-    scopedSlots: { customRender: 'action' }
+    scopedSlots: { customRender: 'action' },
+    width:100,
+    fixed: 'right',
   }
 ]
 

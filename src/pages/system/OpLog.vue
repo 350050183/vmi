@@ -6,25 +6,34 @@
           <div>搜索</div>
           <div>
             <a-row>
-              <a-col :md="8" :sm="24">
+              <a-col :md="6" :sm="24">
                 <a-form-item
-                    label="名称"
+                    label="控制器"
                     :labelCol="{span: 5}"
                     :wrapperCol="{span: 18, offset: 1}"
                 >
-                  <a-input placeholder="请输入" v-model="name"/>
+                  <a-input placeholder="请输入" v-model="controller"/>
                 </a-form-item>
               </a-col>
-              <a-col :md="8" :sm="24">
+              <a-col :md="6" :sm="24">
                 <a-form-item
-                    label="编码"
+                    label="方法"
                     :labelCol="{span: 5}"
                     :wrapperCol="{span: 18, offset: 1}"
                 >
-                  <a-input placeholder="请输入" v-model="code"/>
+                  <a-input placeholder="请输入" v-model="action"/>
                 </a-form-item>
               </a-col>
-              <a-col :md="8" :sm="24">
+              <a-col :md="6" :sm="24">
+                <a-form-item
+                    label="IP"
+                    :labelCol="{span: 5}"
+                    :wrapperCol="{span: 18, offset: 1}"
+                >
+                  <a-input placeholder="请输入" v-model="ip"/>
+                </a-form-item>
+              </a-col>
+              <a-col :md="6" :sm="24">
                 <a-form-item
                     label="状态"
                     :labelCol="{span: 5}"
@@ -62,13 +71,15 @@
           </div>
           <div slot="deleteRender" slot-scope="{text, record}"><span
               :style="record.is_delete==1?'color:red':''">{{ renderDeleteStatus(record.is_delete) }}</span></div>
+
+          <div slot="accountRender" slot-scope="{text, record}">{{ accountRender(record.account_id) }}</div>
         </standard-table>
       </div>
     </a-card>
     <a-drawer
         title="类别管理"
         placement="right"
-        :closable="false"
+        :closable="true"
         :visible="isDrawerVisible"
         :after-visible-change="afterDrawerVisibleChange"
         @close="onDrawerClose"
@@ -139,23 +150,48 @@
 <script>
 import StandardTable from '@/components/table/StandardTable'
 import {index, add, edit, del, undel, get} from "@/services/OpLog";
+import {index as accountIndex} from "@/services/Account";
 
 const columns = [
   {
-    title: '名称',
-    dataIndex: 'name',
-    // scopedSlots: {customRender: 'name'}
+    title: '操作人',
+    dataIndex: 'account_id',
+    scopedSlots: {customRender: 'accountRender'},
+    width:100
   },
   {
-    title: '编码',
-    dataIndex: 'code',
-    // scopedSlots: {customRender: 'code'}
+    title: '控制器',
+    dataIndex: 'controller',
+    width:120
+  },
+  {
+    title: '方法',
+    dataIndex: 'action',
+    width:100
+  },
+  {
+    title: 'GET',
+    dataIndex: 'get',
+  },
+  {
+    title: 'POST',
+    dataIndex: 'post',
+  },
+  {
+    title: 'IP',
+    dataIndex: 'ip',
+    width:100
+  },
+  {
+    title: 'UA',
+    dataIndex: 'ua',
   },
   {
     title: '状态',
     dataIndex: 'is_delete',
     needTotal: false,
-    scopedSlots: {customRender: 'deleteRender'}
+    scopedSlots: {customRender: 'deleteRender'},
+    width:60
   },
   {
     title: '更新时间',
@@ -164,7 +200,9 @@ const columns = [
   },
   {
     title: '操作',
-    scopedSlots: {customRender: 'action'}
+    scopedSlots: {customRender: 'action'},
+    width:45,
+    // fixed: 'right',
   }
 ]
 
@@ -181,12 +219,14 @@ export default {
       advanced: true,
       columns: columns,
       dataSource: [],
+      dataSourceOfAccount: [],
       selectedRows: [],
       newName: '',
       newCode: '',
-      name: '',
-      code: '',
+      controller: '',
+      action: '',
       is_delete: '0',
+      ip: '',
       pagination: {
         current: 1,
         pageSize: 20,
@@ -199,10 +239,14 @@ export default {
   },
   mounted() {
     this.getData()
+    this.getAccountData()
   },
   methods: {
     renderDeleteStatus(is_delete) {
       return parseInt(is_delete) === 1 ? '删除' : '正常'
+    },
+    accountRender(account_id) {
+      return this.dataSourceOfAccount.filter((item)=>item.id==account_id)[0]?.name
     },
     handleReset() {
       this.form.resetFields();
@@ -338,8 +382,9 @@ export default {
     },
     getData() {
       index({
-        name: this.name,
-        code: this.code,
+        controller: this.controller,
+        action: this.action,
+        ip: this.ip,
         is_delete: this.is_delete,
         page: this.pagination.current,
         pageSize: this.pagination.pageSize
@@ -353,6 +398,21 @@ export default {
           this.pagination.current = page
           this.pagination.pageSize = pageSize
           this.pagination.total = total
+        }
+      })
+    },
+    getAccountData() {
+      accountIndex({
+        is_delete: 0,
+        page: 1,
+        pageSize: 99999
+      }).then(res => {
+        const {success, message, code} = res?.data ?? {}
+        if (!success) {
+          this.$message.warning(code + ': ' + message)
+        } else {
+          const {list} = res?.data?.data ?? {}
+          this.dataSourceOfAccount = list
         }
       })
     },

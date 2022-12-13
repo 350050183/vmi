@@ -74,15 +74,20 @@
             <a @click="assignPermission(record.id)" v-auth:role="`edit`">
               <a-icon type="edit"/>
               权限分配
-            </a>
+            </a><br/>
             <a @click="onBeforeEdit(record.id)" v-auth:role="`edit`">
               <a-icon type="edit"/>
               修改
-            </a>
-            <a @click="onDel(record.id)" v-auth:role="`del`" v-if="record.is_delete==0">
-              <a-icon type="delete"/>
-              删除
-            </a>
+            </a><br/>
+            <a-popconfirm
+                title="确定要删除?"
+                ok-text="确定"
+                cancel-text="取消"
+                @confirm="onDel(record.id)"
+                v-auth:role="`del`" v-if="record.is_delete==0"
+            >
+              <a href="#"><a-icon type="delete"/>删除</a>
+            </a-popconfirm>
             <a @click="onUnDel(record.id)" v-auth:role="`undel`" v-if="record.is_delete==1">
               <a-icon type="delete"/>
               恢复
@@ -96,7 +101,7 @@
     <a-drawer
         title="角色管理"
         placement="right"
-        :closable="false"
+        :closable="true"
         :visible="isDrawerVisible"
         :after-visible-change="afterDrawerVisibleChange"
         @close="onDrawerClose"
@@ -164,7 +169,7 @@
     <a-drawer
         title="角色权限分配"
         placement="right"
-        :closable="false"
+        :closable="true"
         :visible="isDrawerVisibleOfPermission"
         :after-visible-change="afterDrawerVisibleChangeOfPermission"
         @close="onDrawerCloseOfPermission"
@@ -270,7 +275,9 @@ const columns = [
   },
   {
     title: '操作',
-    scopedSlots: {customRender: 'action'}
+    scopedSlots: {customRender: 'action'},
+    width:120,
+    fixed: 'right',
   }
 ]
 

@@ -63,14 +63,11 @@
             @selectedRowChange="onSelectChange"
         >
           <div slot="action" slot-scope="{text, record}">
-            <router-link :to="'/product/SkuList?id'+record.id">
-              <a-icon type="edit"/>
-              SKU管理
-            </router-link>
-            <a style="margin-right: 8px;margin-left: 8px" @click="onBeforeEdit(record.id)">
+            <a style="margin-right: 8px;" @click="onBeforeEdit(record.id)">
               <a-icon type="edit"/>
               修改
             </a>
+            <br/>
             <a @click="onDel(record.id)" v-auth:role="`delete`" v-if="record.is_delete==0">
               <a-icon type="delete"/>
               删除
@@ -89,7 +86,7 @@
     <a-drawer
         title="产品管理"
         placement="right"
-        :closable="false"
+        :closable="true"
         :visible="isDrawerVisible"
         @close="onDrawerClose"
         width="640"
@@ -246,7 +243,9 @@ const columns = [
   },
   {
     title: '操作',
-    scopedSlots: {customRender: 'action'}
+    scopedSlots: {customRender: 'action'},
+    width:100,
+    fixed: 'right',
   }
 ]
 
@@ -289,8 +288,8 @@ export default {
   },
   authorize: {
     // deleteRecord: 'delete'
-    onDel: {check: 'delete', type: 'role'},
-    onUnDel: {check: 'delete', type: 'role'}
+    onDel: {check: 'del', type: 'role'},
+    onUnDel: {check: 'undel', type: 'role'}
   },
   mounted() {
     this.cateCateData().then(() => this.getData())

@@ -69,7 +69,7 @@
     <a-drawer
         title="经销商管理"
         placement="right"
-        :closable="false"
+        :closable="true"
         :visible="isDrawerVisible"
         :after-visible-change="afterDrawerVisibleChange"
         @close="onDrawerClose"
@@ -249,7 +249,9 @@ const columns = [
   },
   {
     title: '操作',
-    scopedSlots: {customRender: 'action'}
+    scopedSlots: {customRender: 'action'},
+    width:100,
+    fixed: 'right',
   }
 ]
 
